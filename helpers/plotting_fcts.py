@@ -98,13 +98,49 @@ def plot_bins_group(x, y, color="tab:blue", group_type="aridity_class", group="e
                 fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
 
 
-def plot_bins(x, y, **kwargs):
+def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
+
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=3, foreground='white')
+
+    # extract data
+    df = kwargs.get('data')
+
+    # get correlations
+    df = df.dropna()
+    df_group = df.loc[df[domains]==domain]
+    color = palette[domain]
 
     # calculate binned statistics
     bin_edges, \
     mean_stat, std_stat, median_stat, \
     p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
-    asymmetric_error, bin_median = get_binned_stats(x, y)
+    asymmetric_error, bin_median = get_binned_stats(df_group[x], df_group[y], n)
+
+    ax = plt.gca()
+    corr_str = ''
+    r_sp, _ = stats.spearmanr(df.loc[df[domains] == domain, x], df.loc[df[domains] == domain, y], nan_policy='omit')
+    #corr_str = corr_str + r' $\rho_s$ ' + str(domain) + " = " + str(np.round(r_sp,2))
+    corr_str = corr_str + str(np.round(r_sp,2))
+    print(corr_str)
+    r_sp_tot, _ = stats.spearmanr(df[x], df[y], nan_policy='omit')
+    print("(" + str(np.round(r_sp_tot,2)) + ")")
+
+    # plot bins
+    ax = plt.gca()
+    #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
+    #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
+    ax.plot(bin_median, median_stat.statistic, color=color, path_effects=[outline])
+    #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
+
+
+def plot_bins(x, y, n=11, **kwargs):
+
+    # calculate binned statistics
+    bin_edges, \
+    mean_stat, std_stat, median_stat, \
+    p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
+    asymmetric_error, bin_median = get_binned_stats(x, y, n)
 
     # plot bins
     ax = plt.gca()
@@ -120,7 +156,7 @@ def plot_bins(x, y, **kwargs):
                 c='white', zorder=10, fmt='none')
 
 
-def binned_stats_table(df, x_str, y_str, ghms):
+def binned_stats_table(df, x_str, y_str, ghms, n=11):
 
     l = []
     for g in ghms:
@@ -131,7 +167,7 @@ def binned_stats_table(df, x_str, y_str, ghms):
         bin_edges, \
         mean_stat, std_stat, median_stat, \
         p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
-        asymmetric_error, bin_median = get_binned_stats(x, y)
+        asymmetric_error, bin_median = get_binned_stats(x, y, n)
 
         results = pd.DataFrame()
         results["bin_lower_edge"] = bin_edges[0:-1]
@@ -153,10 +189,10 @@ def binned_stats_table(df, x_str, y_str, ghms):
     return results_df
 
 
-def get_binned_stats(x, y):
+def get_binned_stats(x, y, n=11):
 
     # calculate binned statistics
-    bin_edges = stats.mstats.mquantiles(x[~np.isnan(x)], np.linspace(0, 1, 11))
+    bin_edges = stats.mstats.mquantiles(x[~np.isnan(x)], np.linspace(0, 1, n))
     bin_edges = np.unique(bin_edges)
     mean_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanmean(y), bins=bin_edges)
     std_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanstd(y), bins=bin_edges)
@@ -276,10 +312,10 @@ def mask_greenland(data_path="2b/aggregated/"):
 
 
 def plot_map(lon, lat, var, var_unit=" ", var_name="misc",
-             bounds=np.linspace(0, 2000, 11), colormap='YlGnBu', colormap_reverse=False):
+             bounds=np.linspace(0, 2000, 11), colormap='YlGnBu', colortype='Sequential', colormap_reverse=False):
 
     # prepare colour map
-    o = brewer2mpl.get_map(colormap, 'Sequential', 9, reverse=colormap_reverse)
+    o = brewer2mpl.get_map(colormap, colortype, 9, reverse=colormap_reverse)
     c = o.mpl_colormap
 
     # create figure
