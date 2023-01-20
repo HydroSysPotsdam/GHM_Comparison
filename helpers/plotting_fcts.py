@@ -98,6 +98,25 @@ def plot_bins_group(x, y, color="tab:blue", group_type="aridity_class", group="e
                 fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
 
 
+def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
+
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=3, foreground='white')
+
+    color = palette[domain]
+
+    # calculate binned statistics
+    bin_edges, \
+    mean_stat, std_stat, median_stat, \
+    p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
+    asymmetric_error, bin_median = get_binned_stats(x, y, n)
+
+    #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
+    #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
+    ax.plot(bin_median, median_stat.statistic, color=color, alpha=0.7, linestyle=ls) #, path_effects=[outline]
+    #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
+
+
 def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
 
     import matplotlib.patheffects as mpe
@@ -193,6 +212,7 @@ def get_binned_stats(x, y, n=11):
 
     # calculate binned statistics
     bin_edges = stats.mstats.mquantiles(x[~np.isnan(x)], np.linspace(0, 1, n))
+    #bin_edges = np.linspace(0, 2500, 11)
     bin_edges = np.unique(bin_edges)
     mean_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanmean(y), bins=bin_edges)
     std_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanstd(y), bins=bin_edges)
@@ -203,12 +223,48 @@ def get_binned_stats(x, y, n=11):
     p_95_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanquantile(y, .95), bins=bin_edges)
     asymmetric_error = [median_stat.statistic - p_25_stat.statistic, p_75_stat.statistic - median_stat.statistic]
     bin_median = stats.mstats.mquantiles(x, np.linspace(0.05, 0.95, len(bin_edges)-1))
+    #bin_median = np.linspace(125, 2375, 10)
 
     return bin_edges, \
            mean_stat, std_stat, median_stat, \
            p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
            asymmetric_error, bin_median
 
+
+def add_regression_domains(x, y, domains, palette, **kwargs):
+
+    from sklearn.linear_model import LinearRegression
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=3, foreground='white')
+
+    df = kwargs.get('data')
+    df = df.dropna(subset = [x])
+    df = df.dropna(subset = [y])
+    df = df.dropna(subset = [domains])
+
+    palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
+
+    ax = plt.gca()
+    slope_str = ''
+    for d in df[domains].unique():
+        x_tmp = df.loc[df[domains] == d, x]
+        y_tmp = df.loc[df[domains] == d, y]
+        reg = LinearRegression().fit(x_tmp.array.reshape(-1,1), y_tmp.array)
+        #df_tmp = df.loc[df[domains] == d]
+        #if x == 'Precipitation':
+        #    z = 'Net radiation'
+        #elif x == 'Net radiation':
+        #    z = 'Precipitation'
+        #r_partial_mat = partial_corr(data=df_tmp, x=x, y=y, covar=[z], method='spearman')
+        #r_partial = r_partial_mat["r"].values[0]
+
+        b0 = reg.intercept_
+        b1 = reg.coef_
+        #slope_str = slope_str + r' slope ' "= " + str(np.round(b1,2)) + "\n"
+        x_range = np.array([np.quantile(x_tmp,0.05), np.quantile(x_tmp,0.95)])
+        y_range = reg.predict(x_range.reshape(-1,1))
+        ax.plot(x_range, y_range, color=palette[d], alpha=1,
+                label=r' slope ' "= " + str(np.round(b1[0],2)), path_effects=[outline])
 
 def add_corr_domains(x, y, domains, palette, **kwargs):
 
