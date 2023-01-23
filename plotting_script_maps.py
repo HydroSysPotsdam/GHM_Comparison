@@ -184,13 +184,14 @@ def white_spaces_plots(df, ghms):
 
     # define variables
     name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff"]
-    lim_list = [[0, 1], [0, 1], [0, 1]] #lim_list = [[0, .5], [0, .5], [0, .5]] #lim_list = [[0, 2], [0, 2], [0, 2]]
-    #lim_list = [[0, 200], [0, 200], [0, 200]]
-    lim_list = [[0, 1000], [0, 1000], [0, 1000]]
+    lim_list = [[0, 1], [0, 1], [0, 1]] #
+    lim_list = [[0, .2], [0, .2], [0, .2]] #lim_list = [[0, 2], [0, 2], [0, 2]]
+    lim_list = [[0, 200], [0, 200], [0, 200]]
+    #lim_list = [[0, 1000], [0, 1000], [0, 1000]]
     color_scale_list = ['Greens', 'Purples', 'Blues']
 
     # define plot type (coefficient of variation or standard deviation of ratio)
-    var_type = 'mean'#'CoV' #'std' #'ratio'
+    var_type = 'std'#'mean'#'CoV' #'std' #'ratio'
 
     # check if folder exists
     results_path = "results/white_spaces/"
@@ -227,7 +228,7 @@ def white_spaces_plots(df, ghms):
 
         plotting_fcts.plot_map(df_tmp["lon"], df_tmp["lat"], df_tmp["var"],
                                unit, var_type + " (" + name + ")", bounds=np.linspace(lim[0], lim[1], 11),
-                               colormap=color_scale, colormap_reverse=False)
+                               colormap=color_scale, colormap_reverse=True)
         plotting_fcts.mask_greenland(data_path)
         ax = plt.gca()
         ax.coastlines(linewidth=0.25)
@@ -320,9 +321,9 @@ def most_deviating_model_plot(df, ghms):
 
 ### run functions ###
 
-globalmeans(df, ghms, domains)
-map_plots(df, ghms)
-aridity_map_plots(df, ghms)
-outlier_plots(df, ghms)
+#globalmeans(df, ghms, domains)
+#map_plots(df, ghms)
+#aridity_map_plots(df, ghms)
+#outlier_plots(df, ghms)
 white_spaces_plots(df, ghms)
-most_deviating_model_plot(df, ghms)
+#most_deviating_model_plot(df, ghms)

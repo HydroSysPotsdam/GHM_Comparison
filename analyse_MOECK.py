@@ -70,6 +70,19 @@ df.loc[df["pr"] > 50000, "pr"] = np.nan  # 65535
 df['pr'] = df['pr'] * 0.1
 """
 
+"""
+# test climate classification
+coord_list = [(x,y) for x,y in zip(df['lon'], df['lat'])]
+cc_path = "C:/Users/gnann/Desktop/16ctquxqxk46h2v61gz7drcdz3/ClimateClassification_mainMap_geoReferenced.tif"
+# open all datasets
+cc = rio.open(cc_path, masked=True)
+df['cc'] = [x for x in cc.sample(coord_list)]
+# transform to np.arrays and rescale variables
+df['cc'] = np.concatenate(df['cc'].to_numpy())
+# remove nodata values
+df.loc[df["cc"] > 50000, "cc"] = np.nan
+"""
+
 # scatter plot
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
 df.rename(columns={'pr_median': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
@@ -82,8 +95,9 @@ df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dr
 df = df.sort_values(by=["sort_helper"])
 
 # because many R values are paired with exactly the same P value, this will help binning the data
+# todo: find a better solution... this will randomly place R values into different bins and thus leads to different plots...
 df["Precipitation GSWP3"] = (1+0.001*np.random.rand(len(df["Precipitation GSWP3"])))*df["Precipitation GSWP3"]
-x_name = "pr"
+x_name = "Precipitation GSWP3"
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
@@ -107,7 +121,7 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_Moeck.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-x_name = "pr"
+x_name = "Precipitation GSWP3"
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"

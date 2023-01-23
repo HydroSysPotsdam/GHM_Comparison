@@ -47,9 +47,9 @@ def lineplots(df):
     df = df.replace(new_names, regex=True)
 
     # define variables
-    x_name_list = ["Precipitation", "Net radiation", "totrad"]
-    x_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
-    x_lim_list = [[-100, 3100], [-100, 2100], [2400, 10100]]
+    x_name_list = ["Precipitation", "Net radiation"] #, "totrad"
+    x_unit_list = [" [mm/yr]", " [mm/yr]"] #, " [mm/yr]"
+    x_lim_list = [[-100, 3100], [-100, 2100]] #, [2400, 10100]
     y_name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff"]
     y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
     y_lim_list = [[-100, 2100], [-100, 2100], [-100, 2100]]
@@ -101,7 +101,7 @@ def plot_Budyko(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls="dashed")
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls="solid")
 
 def plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n):
 
@@ -113,19 +113,21 @@ def plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
 
 def plot_FLUXNET(d, domain_list, x_name, y_name, axs, n):
 
     data_palette = {"wet warm": '#808080', "dry warm": '#808080',
                     "wet cold": '#808080', "dry cold": '#808080'}
+    data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
+                    "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
     df = pd.read_csv("data/" + "FLUXNET_prepared.csv", sep=',')
 
     for i in range(0, 4):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
 
 def plot_Moeck(d, domain_list, x_name, y_name, axs, n):
 
@@ -137,46 +139,55 @@ def plot_Moeck(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
 
 def plot_MacDonald(d, domain_list, x_name, y_name, axs, n):
 
     data_palette = {"wet warm": '#808080', "dry warm": '#808080',
                     "wet cold": '#808080', "dry cold": '#808080'}
+    data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
+                    "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
+
     df = pd.read_csv("data/" + "MacDonald_prepared.csv", sep=',')
 
     for i in [3]:
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
 
 def plot_GSIM(d, domain_list, x_name, y_name, axs, n):
 
     data_palette = {"wet warm": '#826d8c', "dry warm": '#826d8c',
                     "wet cold": '#826d8c', "dry cold": '#826d8c'}
+    data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
+                    "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
     df = pd.read_csv("data/" + "GSIM_prepared.csv", sep=',')
 
     for i in range(0, 4):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
 
 def plot_GRUN(d, domain_list, x_name, y_name, axs, n):
 
     data_palette = {"wet warm": '#808080', "dry warm": '#808080',
                     "wet cold": '#808080', "dry cold": '#808080'}
+    data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
+                    "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
     df = pd.read_csv("data/" + "GRUN_prepared.csv", sep=',')
 
     for i in range(0, 4):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashdot')
 
 def plot_CARAVAN(d, domain_list, x_name, y_name, axs, n):
 
+    data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
+                    "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
     data_palette = {"wet warm": '#3B3B3B', "dry warm": '#3B3B3B',
                     "wet cold": '#3B3B3B', "dry cold": '#3B3B3B'}
     df = pd.read_csv("data/" + "CARAVAN_prepared.csv", sep=',')
@@ -185,7 +196,7 @@ def plot_CARAVAN(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n)
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
 
 def multilineplots(df):
 
@@ -248,26 +259,25 @@ def multilineplots(df):
                 #axs[i].set_title(domain_list[i])
                 plt.grid('major')
 
-                # todo: add data (perhaps with functions...)
                 if x_name=="Precipitation" and y_name=="Actual evapotranspiration":
-                    plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n)
-                    #plot_FLUXNET(d, domain_list, x_name, y_name, axs, n)
-                    plot_Budyko(d, domain_list, x_name, y_name, axs, n)
+                    plot_FLUXCOM(d, domain_list, "Precipitation GSWP3", y_name, axs, n)
+                    #plot_FLUXNET(d, domain_list, "Precipitation", y_name, axs, n)
+                    plot_Budyko(d, domain_list, "Precipitation", y_name, axs, n)
 
                 if x_name=="Precipitation" and y_name=="Groundwater recharge":
-                    plot_MacDonald(d, domain_list, x_name, y_name, axs, n)
-                    plot_Moeck(d, domain_list, x_name, y_name, axs, n)
+                    plot_MacDonald(d, domain_list, "Precipitation", y_name, axs, n)
+                    plot_Moeck(d, domain_list, "Precipitation GSWP3", y_name, axs, n)
 
                 if x_name=="Precipitation" and y_name=="Total runoff":
-                    #plot_GSIM(d, domain_list, x_name, y_name, axs, n)
-                    plot_GRUN(d, domain_list, x_name, y_name, axs, n)
-                    plot_CARAVAN(d, domain_list, x_name, y_name, axs, n)
-                    plot_Budyko(d, domain_list, x_name, y_name, axs, n)
+                    #plot_GSIM(d, domain_list, "Precipitation", y_name, axs, n)
+                    plot_GRUN(d, domain_list, "Precipitation GSWP3", y_name, axs, n)
+                    plot_CARAVAN(d, domain_list, "Precipitation", y_name, axs, n)
+                    plot_Budyko(d, domain_list, "Precipitation", y_name, axs, n)
 
                 if x_name=="Net radiation" and y_name=="Actual evapotranspiration":
-                    plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n)
-                    #plot_FLUXNET(d, domain_list, x_name, y_name, axs, n)
-                    plot_Budyko(d, domain_list, x_name, y_name, axs, n)
+                    plot_FLUXCOM(d, domain_list, "Net radiation", y_name, axs, n)
+                    #plot_FLUXNET(d, domain_list, "Precipitation", y_name, axs, n)
+                    plot_Budyko(d, domain_list, "Net radiation", y_name, axs, n)
 
             fig.savefig(results_path + x_name + '_' + y_name + "_multiline_plot.png", dpi=600, bbox_inches='tight')
             plt.close()
@@ -333,6 +343,6 @@ def regressionplots(df):
 
 ### run functions ###
 
-lineplots(df)
+#lineplots(df)
 multilineplots(df)
-regressionplots(df)
+#regressionplots(df)

@@ -111,9 +111,13 @@ def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
     p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
     asymmetric_error, bin_median = get_binned_stats(x, y, n)
 
+    r_sp, _ = stats.spearmanr(x, y, nan_policy='omit')
+    if r_sp < 0.1:
+        r_sp = 0.1
+
     #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
     #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
-    ax.plot(bin_median, median_stat.statistic, color=color, alpha=0.7, linestyle=ls) #, path_effects=[outline]
+    ax.plot(bin_median, median_stat.statistic, color=color, alpha=r_sp, linestyle=ls) #, path_effects=[outline]
     #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
 
 
@@ -126,7 +130,7 @@ def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
     df = kwargs.get('data')
 
     # get correlations
-    df = df.dropna()
+    #df = df.dropna()
     df_group = df.loc[df[domains]==domain]
     color = palette[domain]
 
@@ -151,6 +155,7 @@ def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
     #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
     ax.plot(bin_median, median_stat.statistic, color=color, path_effects=[outline])
     #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
+    #ax.fill_between(bin_median, p_05_stat.statistic, p_95_stat.statistic, facecolor=color, alpha=0.1)
 
 
 def plot_bins(x, y, n=11, **kwargs):

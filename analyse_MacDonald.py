@@ -65,7 +65,7 @@ df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
 df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
 df = df.sort_values(by=["sort_helper"])
 
-x_name = "Precipitation GSWP3"
+x_name = "Precipitation"
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
@@ -89,7 +89,7 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_MacDonald.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-x_name = "Precipitation GSWP3"
+x_name = "Precipitation"
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
