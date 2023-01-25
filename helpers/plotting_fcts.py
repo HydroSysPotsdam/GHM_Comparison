@@ -24,6 +24,14 @@ def plot_origin_line(x, y, **kwargs):
     ax.plot(np.linspace(lower_lim, upper_lim, 1000), np.linspace(lower_lim,  upper_lim, 1000), '--', color='grey', alpha=0.5, zorder=1)
 
 
+def plot_origin_line_alt(ax=plt.gca(), **kwargs): #x, y,
+
+    #ax = plt.gca()
+    lower_lim = [ax.get_ylim()[0]]
+    upper_lim = [ax.get_ylim()[1]]
+    ax.plot(np.linspace(lower_lim, upper_lim, 1000), np.linspace(lower_lim,  upper_lim, 1000), '--', color='grey', alpha=0.5, zorder=1)
+
+
 def plot_Budyko_limits(x, y, **kwargs):
 
     ax = plt.gca()
@@ -101,7 +109,7 @@ def plot_bins_group(x, y, color="tab:blue", group_type="aridity_class", group="e
 def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
 
     import matplotlib.patheffects as mpe
-    outline = mpe.withStroke(linewidth=3, foreground='white')
+    outline = mpe.withStroke(linewidth=4, foreground='white')
 
     color = palette[domain]
 
@@ -124,7 +132,7 @@ def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
 def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
 
     import matplotlib.patheffects as mpe
-    outline = mpe.withStroke(linewidth=3, foreground='white')
+    outline = mpe.withStroke(linewidth=4, foreground='white')
 
     # extract data
     df = kwargs.get('data')
@@ -240,7 +248,7 @@ def add_regression_domains(x, y, domains, palette, **kwargs):
 
     from sklearn.linear_model import LinearRegression
     import matplotlib.patheffects as mpe
-    outline = mpe.withStroke(linewidth=3, foreground='white')
+    outline = mpe.withStroke(linewidth=4, foreground='white')
 
     df = kwargs.get('data')
     df = df.dropna(subset = [x])
