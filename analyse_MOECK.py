@@ -85,7 +85,7 @@ df.loc[df["cc"] > 50000, "cc"] = np.nan
 
 # scatter plot
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Groundwater recharge [mm/y]': 'Groundwater recharge'}, inplace=True)
 df["dummy"] = ""
@@ -94,17 +94,17 @@ df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
 df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
 df = df.sort_values(by=["sort_helper"])
 
+x_name = "Precipitation GSWP3"
 # because many R values are paired with exactly the same P value, this will help binning the data
 # todo: find a better solution... this will randomly place R values into different bins and thus leads to different plots...
-df["Precipitation GSWP3"] = (1+0.001*np.random.rand(len(df["Precipitation GSWP3"])))*df["Precipitation GSWP3"]
-x_name = "Precipitation GSWP3"
+df[x_name] = (1+0.001*np.random.rand(len(df[x_name])))*df[x_name]
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=5)
-n = 11
+n = 6
 d = "domain_days_below_1_0.08_aridity_netrad"
 g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
 g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
@@ -168,7 +168,7 @@ print(str(np.round(df["Groundwater recharge"].mean(),2)))
 domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
 print("Rank correlations between precipitation and net radiation")
 for d in domains:
-    r_sp, _ = stats.spearmanr(df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Precipitation"],
+    r_sp, _ = stats.spearmanr(df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Precipitation GSWP3"],
                               df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Net radiation"], nan_policy='omit')
     corr_str = d + ": " + r' $\rho_s$ ' "= " + str(np.round(r_sp, 2))
     print(corr_str)

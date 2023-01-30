@@ -104,7 +104,7 @@ print(df_tot["Rn"].mean())
 # scatter plot
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df_tot, df_domains, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation ISIMIP',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation ISIMIP',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff',
                    'LE': 'Actual evapotranspiration', 'H': 'Sensible heat', 'Rn': 'Net radiation'}, inplace=True)
 df["dummy"] = ""

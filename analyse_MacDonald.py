@@ -55,7 +55,7 @@ df = gdf.join(closest) # merge the datasets by index (for this, it is good to us
 
 # scatter plot
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
-df.rename(columns={'LTA_P_mmpa': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_median': 'Precipitation ISIMIP', 'pr_gswp3': 'Precipitation GSWP3',
+df.rename(columns={'LTA_P_mmpa': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Recharge_mmpa': 'Groundwater recharge'}, inplace=True)
 df["dummy"] = ""
@@ -72,7 +72,7 @@ y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=25)
-n = 11
+n = 6
 d = "domain_days_below_1_0.08_aridity_netrad"
 #g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
 g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)

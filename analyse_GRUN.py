@@ -80,7 +80,7 @@ df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df, df_domains, on=['lat', 'lon'], how='outer')
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff'}, inplace=True)
 df["dummy"] = ""
 palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
@@ -91,8 +91,8 @@ df = df.sort_values(by=["sort_helper"])
 df_weighted = df.copy().dropna()
 print((df_weighted["Total runoff"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
 print(df["Total runoff"].mean())
-print((df_weighted["Precipitation"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df["Precipitation"].mean())
+print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
+print(df["Precipitation GSWP3"].mean())
 #print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
 #print(df["Precipitation GSWP3"].mean())
 

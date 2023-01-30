@@ -58,6 +58,12 @@ for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
         g = sns.FacetGrid(df, col="ghm", col_wrap=4, palette=palette)
         g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name,
                         domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
+        d = "domain_days_below_1_0.08_aridity_netrad"
+        n = 11
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
         g.set(xlim=x_lim, ylim=y_lim)
         if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
             g.map(plotting_fcts.plot_origin_line, x_name, y_name)
@@ -121,6 +127,12 @@ for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
         if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
             g.map(plotting_fcts.plot_origin_line, x_name, y_name)
         g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+        d = "domain_days_below_1_0.08_aridity_netrad"
+        n = 11
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+        g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
         g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
         g.set_titles(col_template = '{col_name}')
         g.tight_layout()
