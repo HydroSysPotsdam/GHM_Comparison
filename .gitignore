@@ -1,7 +1,7 @@
 __pycache__
 model_outputs/2a/*
 model_outputs/2b/*
-#results/*
+results/*
 old/*
 *.bak
 .idea/*
