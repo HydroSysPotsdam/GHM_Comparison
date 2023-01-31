@@ -23,7 +23,7 @@ df["netrad"] = df["netrad"] * 12.87 # transform radiation into mm/y
 df["totrad"] = df["rlds"] + df["rsds"]
 df["totrad"] = df["totrad"] / 2257 * 0.001 * (60 * 60 * 24 * 365) # transform radiation into mm/y
 
-domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
+domains = ["wet warm", "wet cold", "dry cold", "dry warm"]
 
 print("Finished loading data.")
 
@@ -87,6 +87,52 @@ def corrstats(df, ghms, domains):
             df_stats_partial.to_csv(results_path + "corrstats_partial_" + x + "_" + y + ".csv", float_format='%.2f')
 
     print("Finished correlation statistics.")
+
+
+def regressionstats(df, ghms, domains):
+
+    from sklearn.linear_model import LinearRegression
+
+    # check if folder exists
+    results_path = "results/regression/"
+    if not os.path.isdir(results_path):
+        os.makedirs(results_path)
+
+    # loop over all variable pairs
+    for x in ["pr", "netrad"]:
+        for y in ["evap", "qr", "qtot"]:
+
+            stats_mat = np.zeros([len(ghms)+1,len(domains)+1])
+            stats_mat_partial = np.zeros([len(ghms)+1,len(domains)+1])
+
+            # loop over all models and domains
+            for i in range(0, len(ghms)):
+                for j in range(0, len(domains)):
+
+                    # calculate rank correlations
+                    input = df.loc[np.logical_and(df["ghm"]==ghms[i], df["domain_days_below_1_0.08_aridity_netrad"]==domains[j]), x]
+                    output = df.loc[np.logical_and(df["ghm"]==ghms[i], df["domain_days_below_1_0.08_aridity_netrad"]==domains[j]), y]
+                    reg = LinearRegression().fit(input.array.reshape(-1, 1), output.array)
+
+                    b0 = reg.intercept_
+                    b1 = reg.coef_
+
+                    stats_mat[i,j] = b1
+
+                stats_mat[i,len(domains)] = np.max(stats_mat[i,:-1]) - np.min(stats_mat[i,:-1])
+
+            for j in range(0, len(domains)):
+                stats_mat[len(ghms),j] = np.max(stats_mat[:-1,j]) - np.min(stats_mat[:-1,j])
+
+            stats_mat[len(ghms),len(domains)] = np.max(stats_mat[:-1,:-1]) - np.min(stats_mat[:-1,:-1])
+
+            df_stats = pd.DataFrame(stats_mat)
+            df_stats.columns = domains + ["range"]
+            df_stats = df_stats.transpose()
+            df_stats.columns = ghms + ["range"]
+            df_stats.to_csv(results_path + "regressionstats_" + x + "_" + y + ".csv", float_format='%.2f')
+
+    print("Finished regression statistics.")
 
 
 def scatterplots(df):
@@ -492,7 +538,9 @@ def latitude_plots(df):
 
 ### run functions ###
 
+#latitude_plots(df)
 corrstats(df, ghms, domains)
+regressionstats(df, ghms, domains)
 scatterplots(df)
 scatterplots_per_domain(df)
 scatterplots_ensemble(df)
@@ -500,4 +548,3 @@ budyko_plots(df)
 histogram_plots(df)
 coloured_scatterplots(df)
 regressionplots(df)
-latitude_plots(df)
