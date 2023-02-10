@@ -125,7 +125,7 @@ def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
 
     #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
     #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
-    ax.plot(bin_median, median_stat.statistic, color=color, alpha=r_sp, linestyle=ls) #, path_effects=[outline]
+    ax.plot(bin_median, median_stat.statistic, color=color, alpha=0.8, linestyle=ls) #, path_effects=[outline]
     #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
 
 

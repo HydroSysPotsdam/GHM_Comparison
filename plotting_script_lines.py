@@ -187,7 +187,7 @@ def multilineplots(df):
                     x = df.loc[subgroup, x_name]
                     y = df.loc[subgroup, y_name]
                     plotting_fcts.plot_lines(x, y, axs[i], palette, domains, domain_list[i], n=n)
-                    axs[i].grid('major', alpha=0.5, linewidth=1)
+                    #axs[i].grid('major', alpha=0.5, linewidth=1)
 
                 axs[i].set_xlabel(x_name + x_unit)
                 if i == 0:
