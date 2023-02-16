@@ -144,8 +144,8 @@ def multilineplots(df):
         os.makedirs(results_path)
 
     # rename variables and models for paper
-    df.rename(columns = {'pr':'Precipitation', 'netrad':'Net radiation',
-                         'evap':'Actual evap.', 'qr':'Gr. recharge', 'qtot':'Total runoff'}, inplace = True)
+    df.rename(columns = {'pr':'$P$', 'netrad':'$N$',
+                         'evap':'$E_a$', 'qr':'$R$', 'qtot':'$Q$'}, inplace = True)
     palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
     df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
     df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
@@ -154,11 +154,12 @@ def multilineplots(df):
     #df = df.replace(new_names, regex=True)
 
     # define variables
-    x_name_list = ["Precipitation", "Net radiation"]
+    x_name_list = ["$P$", "$N$"]
     x_unit_list = [" [mm/yr]", " [mm/yr]"]
     x_lim_list = [[[800, 3800], [100, 1500], [50, 800], [-100, 1600]],
                   [[700, 2500], [-200, 1500], [0, 1500], [500, 2700]]]
-    y_name_list = ["Actual evap.", "Gr. recharge", "Total runoff"]
+    #y_name_list = ["Actual evap.", "Gr. recharge", "Total runoff"]
+    y_name_list = ["$E_a$", "$R$", "$Q$"]
     y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
     y_lim_list = [[[400, 1500], [-700/10, 700], [50, 550], [-1300/10, 1300]],
                   [[0, 1800], [-700/10, 700], [-120/10, 120], [-400/10, 400]],
@@ -187,7 +188,7 @@ def multilineplots(df):
                     x = df.loc[subgroup, x_name]
                     y = df.loc[subgroup, y_name]
                     plotting_fcts.plot_lines(x, y, axs[i], palette, domains, domain_list[i], n=n)
-                    #axs[i].grid('major', alpha=0.5, linewidth=1)
+                    axs[i].grid('major', alpha=0.5, linewidth=1)
 
                 axs[i].set_xlabel(x_name + x_unit)
                 if i == 0:
@@ -197,22 +198,22 @@ def multilineplots(df):
                 #axs[i].set_title(domain_list[i])
                 #plotting_fcts.plot_origin_line_alt(axs[i])
 
-                if x_name=="Precipitation" and y_name=="Actual evap.":
+                if x_name=="$P$" and y_name=="$E_a$":
                     plot_FLUXCOM(d, domain_list, "Precipitation GSWP3", "Actual evapotranspiration", axs, n)
                     #plot_FLUXNET(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
                     plot_Budyko(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
 
-                if x_name=="Precipitation" and y_name=="Gr. recharge":
+                if x_name=="$P$" and y_name=="$R$":
                     plot_MacDonald(d, domain_list, "Precipitation", "Groundwater recharge", axs, 6)
                     plot_Moeck(d, domain_list, "Precipitation GSWP3", "Groundwater recharge", axs, 6)
 
-                if x_name=="Precipitation" and y_name=="Total runoff":
-                    plot_GSIM(d, domain_list, "Precipitation", y_name, axs, n)
-                    plot_GRUN(d, domain_list, "Precipitation GSWP3", y_name, axs, n)
-                    #plot_CARAVAN(d, domain_list, "Precipitation", y_name, axs, n)
-                    plot_Budyko(d, domain_list, "Precipitation", y_name, axs, n)
+                if x_name=="$P$" and y_name=="$Q$":
+                    plot_GSIM(d, domain_list, "Precipitation", "Total runoff", axs, n)
+                    plot_GRUN(d, domain_list, "Precipitation GSWP3", "Total runoff", axs, n)
+                    #plot_CARAVAN(d, domain_list, "Precipitation", "Total runoff", axs, n)
+                    plot_Budyko(d, domain_list, "Precipitation", "Total runoff", axs, n)
 
-                if x_name=="Net radiation" and y_name=="Actual evap.":
+                if x_name=="$N$" and y_name=="$E_a$":
                     plot_FLUXCOM(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
                     #plot_FLUXNET(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
                     plot_Budyko(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
