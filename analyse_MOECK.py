@@ -7,6 +7,7 @@ import seaborn as sns
 from helpers import get_nearest_neighbour, plotting_fcts
 import geopandas as gpd
 from shapely.geometry import Point
+import rasterio as rio
 import xarray as xr
 from datetime import datetime as dt
 
@@ -34,7 +35,6 @@ for decade in ['1981_1990', '1991_2000', '2001_2010']:
 
 pr = pr.sel(time=slice(dt(1975, 1, 1), dt(2004, 12, 31)))
 pr = pr.mean("time")
-
 # transform into dataframe
 df_pr = pr.to_dataframe().reset_index().dropna()
 df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
@@ -55,9 +55,37 @@ closest = get_nearest_neighbour.nearest_neighbor(gdf, gdf_domains, return_dist=T
 closest = closest.rename(columns={'geometry': 'closest_geom'})
 df = gdf.join(closest) # merge the datasets by index (for this, it is good to use '.join()' -function)
 
+"""
+# test other P dataset
+coord_list = [(x,y) for x,y in zip(df['lon'], df['lat'])]
+pr_path = "D:/Data/CHELSA/CHELSA_bio12_1981-2010_V.2.1.tif"
+# open all datasets
+pr = rio.open(pr_path, masked=True)
+df['pr'] = [x for x in pr.sample(coord_list)]
+# transform to np.arrays and rescale variables
+df['pr'] = np.concatenate(df['pr'].to_numpy())
+# remove nodata values
+df.loc[df["pr"] > 50000, "pr"] = np.nan  # 65535
+# transform values
+df['pr'] = df['pr'] * 0.1
+"""
+
+"""
+# test climate classification
+coord_list = [(x,y) for x,y in zip(df['lon'], df['lat'])]
+cc_path = "C:/Users/gnann/Desktop/16ctquxqxk46h2v61gz7drcdz3/ClimateClassification_mainMap_geoReferenced.tif"
+# open all datasets
+cc = rio.open(cc_path, masked=True)
+df['cc'] = [x for x in cc.sample(coord_list)]
+# transform to np.arrays and rescale variables
+df['cc'] = np.concatenate(df['cc'].to_numpy())
+# remove nodata values
+df.loc[df["cc"] > 50000, "cc"] = np.nan
+"""
+
 # scatter plot
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Groundwater recharge [mm/y]': 'Groundwater recharge'}, inplace=True)
 df["dummy"] = ""
@@ -67,12 +95,21 @@ df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dr
 df = df.sort_values(by=["sort_helper"])
 
 x_name = "Precipitation GSWP3"
+# because many R values are paired with exactly the same P value, this will help binning the data
+# todo: find a better solution... this will randomly place R values into different bins and thus leads to different plots...
+df[x_name] = (1+0.001*np.random.rand(len(df[x_name])))*df[x_name]
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
-g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=5)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=5)
+n = 6
+d = "domain_days_below_1_0.08_aridity_netrad"
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
 g.set(xlim=[-100, 3100], ylim=[-100, 2100])
 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
 g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
@@ -82,6 +119,24 @@ sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
 for axes in g.axes.ravel():
     axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_Moeck.png", dpi=600, bbox_inches='tight')
+plt.close()
+
+x_name = "Precipitation GSWP3"
+y_name = "Groundwater recharge"
+x_unit = " [mm/yr]"
+y_unit = " [mm/yr]"
+sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
+g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=5)
+g.set(xlim=[-100, 3100], ylim=[-100, 2100])
+g.map(plotting_fcts.plot_origin_line, x_name, y_name)
+g.map_dataframe(plotting_fcts.add_regression_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
+g.set_titles(col_template = '{col_name}')
+sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
+for axes in g.axes.ravel():
+    axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
+g.savefig(results_path + x_name + '_' + y_name + "_regressionplot_Moeck.png", dpi=600, bbox_inches='tight')
 plt.close()
 
 x_name = "Net radiation"
@@ -113,7 +168,10 @@ print(str(np.round(df["Groundwater recharge"].mean(),2)))
 domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
 print("Rank correlations between precipitation and net radiation")
 for d in domains:
-    r_sp, _ = stats.spearmanr(df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Precipitation"],
+    r_sp, _ = stats.spearmanr(df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Precipitation GSWP3"],
                               df.loc[df["domain_days_below_1_0.08_aridity_netrad"] == d, "Net radiation"], nan_policy='omit')
     corr_str = d + ": " + r' $\rho_s$ ' "= " + str(np.round(r_sp, 2))
     print(corr_str)
+
+# save data to df
+df.to_csv("data/" + "Moeck_prepared.csv", index=False)

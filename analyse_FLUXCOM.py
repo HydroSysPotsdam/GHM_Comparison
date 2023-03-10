@@ -104,7 +104,7 @@ print(df_tot["Rn"].mean())
 # scatter plot
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df_tot, df_domains, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation ISIMIP',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation ISIMIP',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff',
                    'LE': 'Actual evapotranspiration', 'H': 'Sensible heat', 'Rn': 'Net radiation'}, inplace=True)
 df["dummy"] = ""
@@ -119,7 +119,13 @@ x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
-g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
+d = "domain_days_below_1_0.08_aridity_netrad"
+n = 11
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
 g.set(xlim=[-100, 3100], ylim=[-100, 2100])
 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
 g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
@@ -131,13 +137,37 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_FLUXCOM.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-x_name = "Net radiation ISIMIP"
+x_name = "Precipitation GSWP3"
+y_name = "Actual evapotranspiration"
+x_unit = " [mm/yr]"
+y_unit = " [mm/yr]"
+sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
+g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
+g.set(xlim=[-100, 3100], ylim=[-100, 2100])
+g.map(plotting_fcts.plot_origin_line, x_name, y_name)
+g.map_dataframe(plotting_fcts.add_regression_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
+g.set_titles(col_template = '{col_name}')
+sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
+for axes in g.axes.ravel():
+    axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
+g.savefig(results_path + x_name + '_' + y_name + "_regressionplot_FLUXCOM.png", dpi=600, bbox_inches='tight')
+plt.close()
+
+x_name = "Net radiation"
 y_name = "Actual evapotranspiration"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+d = "domain_days_below_1_0.08_aridity_netrad"
+n = 11
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
 g.set(xlim=[-100, 2100], ylim=[-100, 2100])
 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
 g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
@@ -149,6 +179,27 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_FLUXCOM.png", dpi=600, bbox_inches='tight')
 plt.close()
 
+x_name = "Net radiation"
+y_name = "Actual evapotranspiration"
+x_unit = " [mm/yr]"
+y_unit = " [mm/yr]"
+sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
+g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+g.set(xlim=[-100, 2100], ylim=[-100, 2100])
+g.map(plotting_fcts.plot_origin_line, x_name, y_name)
+g.map_dataframe(plotting_fcts.add_regression_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
+g.set_titles(col_template = '{col_name}')
+sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
+for axes in g.axes.ravel():
+    axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
+g.savefig(results_path + x_name + '_' + y_name + "_regressionplot_FLUXCOM.png", dpi=600, bbox_inches='tight')
+plt.close()
+
 # count grid cells per climate region (dropna because nan values were not part of the scatter plot)
 print(df.dropna()["domain_days_below_1_0.08_aridity_netrad"].value_counts())
 print(df.dropna()["domain_days_below_1_0.08_aridity_netrad"].value_counts()/df.dropna()["domain_days_below_1_0.08_aridity_netrad"].count())
+
+# save data to df
+df.to_csv("data/" + "FLUXCOM_prepared.csv", index=False)

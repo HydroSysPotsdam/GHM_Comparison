@@ -24,6 +24,14 @@ def plot_origin_line(x, y, **kwargs):
     ax.plot(np.linspace(lower_lim, upper_lim, 1000), np.linspace(lower_lim,  upper_lim, 1000), '--', color='grey', alpha=0.5, zorder=1)
 
 
+def plot_origin_line_alt(ax=plt.gca(), **kwargs): #x, y,
+
+    #ax = plt.gca()
+    lower_lim = [ax.get_ylim()[0]]
+    upper_lim = [ax.get_ylim()[1]]
+    ax.plot(np.linspace(lower_lim, upper_lim, 1000), np.linspace(lower_lim,  upper_lim, 1000), '--', color='grey', alpha=0.5, zorder=1)
+
+
 def plot_Budyko_limits(x, y, **kwargs):
 
     ax = plt.gca()
@@ -98,13 +106,73 @@ def plot_bins_group(x, y, color="tab:blue", group_type="aridity_class", group="e
                 fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
 
 
-def plot_bins(x, y, **kwargs):
+def plot_lines(x, y, ax, palette, domains, domain, n=11, ls="solid"):
+
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=4, foreground='white')
+
+    color = palette[domain]
 
     # calculate binned statistics
     bin_edges, \
     mean_stat, std_stat, median_stat, \
     p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
-    asymmetric_error, bin_median = get_binned_stats(x, y)
+    asymmetric_error, bin_median = get_binned_stats(x, y, n)
+
+    r_sp, _ = stats.spearmanr(x, y, nan_policy='omit')
+    if r_sp < 0.1:
+        r_sp = 0.1
+
+    #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
+    #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
+    ax.plot(bin_median, median_stat.statistic, color=color, alpha=0.8, linestyle=ls) #, path_effects=[outline]
+    #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
+
+
+def plot_lines_group(x, y, palette, domains, domain, n=11, **kwargs):
+
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=4, foreground='white')
+
+    # extract data
+    df = kwargs.get('data')
+
+    # get correlations
+    #df = df.dropna()
+    df_group = df.loc[df[domains]==domain]
+    color = palette[domain]
+
+    # calculate binned statistics
+    bin_edges, \
+    mean_stat, std_stat, median_stat, \
+    p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
+    asymmetric_error, bin_median = get_binned_stats(df_group[x], df_group[y], n)
+
+    ax = plt.gca()
+    corr_str = ''
+    r_sp, _ = stats.spearmanr(df.loc[df[domains] == domain, x], df.loc[df[domains] == domain, y], nan_policy='omit')
+    #corr_str = corr_str + r' $\rho_s$ ' + str(domain) + " = " + str(np.round(r_sp,2))
+    corr_str = corr_str + str(np.round(r_sp,2))
+    print(corr_str)
+    r_sp_tot, _ = stats.spearmanr(df[x], df[y], nan_policy='omit')
+    print("(" + str(np.round(r_sp_tot,2)) + ")")
+
+    # plot bins
+    ax = plt.gca()
+    #ax.errorbar(bin_median, median_stat.statistic, xerr=None, yerr=asymmetric_error, capsize=2,
+    #            fmt='o', ms=4, elinewidth=1, c='black', ecolor='black', mec='black', mfc=color, alpha=0.9, label=corr_str)
+    ax.plot(bin_median, median_stat.statistic, color=color, path_effects=[outline])
+    #ax.fill_between(bin_median, p_25_stat.statistic, p_75_stat.statistic, facecolor=color, alpha=0.1)
+    #ax.fill_between(bin_median, p_05_stat.statistic, p_95_stat.statistic, facecolor=color, alpha=0.1)
+
+
+def plot_bins(x, y, n=11, **kwargs):
+
+    # calculate binned statistics
+    bin_edges, \
+    mean_stat, std_stat, median_stat, \
+    p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
+    asymmetric_error, bin_median = get_binned_stats(x, y, n)
 
     # plot bins
     ax = plt.gca()
@@ -120,7 +188,7 @@ def plot_bins(x, y, **kwargs):
                 c='white', zorder=10, fmt='none')
 
 
-def binned_stats_table(df, x_str, y_str, ghms):
+def binned_stats_table(df, x_str, y_str, ghms, n=11):
 
     l = []
     for g in ghms:
@@ -131,7 +199,7 @@ def binned_stats_table(df, x_str, y_str, ghms):
         bin_edges, \
         mean_stat, std_stat, median_stat, \
         p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
-        asymmetric_error, bin_median = get_binned_stats(x, y)
+        asymmetric_error, bin_median = get_binned_stats(x, y, n)
 
         results = pd.DataFrame()
         results["bin_lower_edge"] = bin_edges[0:-1]
@@ -153,10 +221,11 @@ def binned_stats_table(df, x_str, y_str, ghms):
     return results_df
 
 
-def get_binned_stats(x, y):
+def get_binned_stats(x, y, n=11):
 
     # calculate binned statistics
-    bin_edges = stats.mstats.mquantiles(x[~np.isnan(x)], np.linspace(0, 1, 11))
+    bin_edges = stats.mstats.mquantiles(x[~np.isnan(x)], np.linspace(0, 1, n))
+    #bin_edges = np.linspace(0, 2500, 11)
     bin_edges = np.unique(bin_edges)
     mean_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanmean(y), bins=bin_edges)
     std_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanstd(y), bins=bin_edges)
@@ -167,12 +236,48 @@ def get_binned_stats(x, y):
     p_95_stat = stats.binned_statistic(x, y, statistic=lambda y: np.nanquantile(y, .95), bins=bin_edges)
     asymmetric_error = [median_stat.statistic - p_25_stat.statistic, p_75_stat.statistic - median_stat.statistic]
     bin_median = stats.mstats.mquantiles(x, np.linspace(0.05, 0.95, len(bin_edges)-1))
+    #bin_median = np.linspace(125, 2375, 10)
 
     return bin_edges, \
            mean_stat, std_stat, median_stat, \
            p_05_stat, p_25_stat, p_75_stat, p_95_stat, \
            asymmetric_error, bin_median
 
+
+def add_regression_domains(x, y, domains, palette, **kwargs):
+
+    from sklearn.linear_model import LinearRegression
+    import matplotlib.patheffects as mpe
+    outline = mpe.withStroke(linewidth=4, foreground='white')
+
+    df = kwargs.get('data')
+    df = df.dropna(subset = [x])
+    df = df.dropna(subset = [y])
+    df = df.dropna(subset = [domains])
+
+    palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
+
+    ax = plt.gca()
+    slope_str = ''
+    for d in df[domains].unique():
+        x_tmp = df.loc[df[domains] == d, x]
+        y_tmp = df.loc[df[domains] == d, y]
+        reg = LinearRegression().fit(x_tmp.array.reshape(-1,1), y_tmp.array)
+        #df_tmp = df.loc[df[domains] == d]
+        #if x == 'Precipitation':
+        #    z = 'Net radiation'
+        #elif x == 'Net radiation':
+        #    z = 'Precipitation'
+        #r_partial_mat = partial_corr(data=df_tmp, x=x, y=y, covar=[z], method='spearman')
+        #r_partial = r_partial_mat["r"].values[0]
+
+        b0 = reg.intercept_
+        b1 = reg.coef_
+        #slope_str = slope_str + r' slope ' "= " + str(np.round(b1,2)) + "\n"
+        x_range = np.array([np.quantile(x_tmp,0.05), np.quantile(x_tmp,0.95)])
+        y_range = reg.predict(x_range.reshape(-1,1))
+        ax.plot(x_range, y_range, color=palette[d], alpha=1,
+                label=r' slope ' "= " + str(np.round(b1[0],2)), path_effects=[outline])
 
 def add_corr_domains(x, y, domains, palette, **kwargs):
 
@@ -276,10 +381,10 @@ def mask_greenland(data_path="2b/aggregated/"):
 
 
 def plot_map(lon, lat, var, var_unit=" ", var_name="misc",
-             bounds=np.linspace(0, 2000, 11), colormap='YlGnBu', colormap_reverse=False):
+             bounds=np.linspace(0, 2000, 11), colormap='YlGnBu', colortype='Sequential', colormap_reverse=False):
 
     # prepare colour map
-    o = brewer2mpl.get_map(colormap, 'Sequential', 9, reverse=colormap_reverse)
+    o = brewer2mpl.get_map(colormap, colortype, 9, reverse=colormap_reverse)
     c = o.mpl_colormap
 
     # create figure

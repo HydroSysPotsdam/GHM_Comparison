@@ -22,11 +22,11 @@ if not os.path.isdir(results_path):
 file_path = "GRUN_v1_GSWP3_WGS84_05_1902_2014.nc"
 
 # test other P data
-pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
+pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1941_1950.nc4')
 #pr = weighted_temporal_mean(pr, "pr")
 #pr.name = "pr"
 pr = pr.resample(time="1Y").sum()
-for decade in ['1981_1990', '1991_2000', '2001_2010']:
+for decade in ['1951_1960', '1961_1970', '1971_1980', '1981_1990', '1991_2000', '2001_2010']:
     tmp = xr.open_dataset(r'./data/pr_gswp3-ewembi_' + decade + '.nc4')
     #tmp = weighted_temporal_mean(tmp, "pr")
     #tmp.name = "pr"
@@ -34,6 +34,7 @@ for decade in ['1981_1990', '1991_2000', '2001_2010']:
     pr = xr.merge([pr, tmp])
 
 pr = pr.sel(time=slice(dt(1975, 1, 1), dt(2004, 12, 31)))
+#pr = pr.sel(time=slice(dt(1945, 1, 1), dt(1974, 12, 31)))
 pr = pr.mean("time")
 
 # transform into dataframe
@@ -80,7 +81,7 @@ df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df, df_domains, on=['lat', 'lon'], how='outer')
 df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
-df.rename(columns={'pr_median': 'Precipitation', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation',
+df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff'}, inplace=True)
 df["dummy"] = ""
 palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
@@ -91,8 +92,8 @@ df = df.sort_values(by=["sort_helper"])
 df_weighted = df.copy().dropna()
 print((df_weighted["Total runoff"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
 print(df["Total runoff"].mean())
-print((df_weighted["Precipitation"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df["Precipitation"].mean())
+print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
+print(df["Precipitation GSWP3"].mean())
 #print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
 #print(df["Precipitation GSWP3"].mean())
 
@@ -103,6 +104,12 @@ y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+d = "domain_days_below_1_0.08_aridity_netrad"
+n = 11
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
 g.set(xlim=[-100, 3100], ylim=[-100, 2100])
 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
 g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
@@ -114,6 +121,24 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_GRUN.png", dpi=600, bbox_inches='tight')
 plt.close()
 
+x_name = "Precipitation GSWP3"
+y_name = "Total runoff"
+x_unit = " [mm/yr]"
+y_unit = " [mm/yr]"
+sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
+g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
+g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+g.set(xlim=[-100, 3100], ylim=[-100, 2100])
+g.map(plotting_fcts.plot_origin_line, x_name, y_name)
+g.map_dataframe(plotting_fcts.add_regression_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
+g.set_titles(col_template = '{col_name}')
+sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
+for axes in g.axes.ravel():
+    axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
+g.savefig(results_path + x_name + '_' + y_name + "_regressionplot_GRUN.png", dpi=600, bbox_inches='tight')
+plt.close()
+
 x_name = "Net radiation"
 y_name = "Total runoff"
 x_unit = " [mm/yr]"
@@ -121,6 +146,12 @@ y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+d = "domain_days_below_1_0.08_aridity_netrad"
+n = 11
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
 g.set(xlim=[-100, 2100], ylim=[-100, 2100])
 g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
 g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
@@ -134,3 +165,6 @@ plt.close()
 # count grid cells per climate region (dropna because nan values were not part of the scatter plot)
 print(df.dropna()["domain_days_below_1_0.08_aridity_netrad"].value_counts())
 print(df.dropna()["domain_days_below_1_0.08_aridity_netrad"].value_counts()/df.dropna()["domain_days_below_1_0.08_aridity_netrad"].count())
+
+# save data to df
+df.to_csv("data/" + "GRUN_prepared.csv", index=False)

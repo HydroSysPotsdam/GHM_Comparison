@@ -23,7 +23,7 @@ df["netrad"] = df["netrad"] * 12.87 # transform radiation into mm/y
 df["totrad"] = df["rlds"] + df["rsds"]
 df["totrad"] = df["totrad"] / 2257 * 0.001 * (60 * 60 * 24 * 365) # transform radiation into mm/y
 
-domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
+domains = ["wet warm", "wet cold", "dry cold", "dry warm"]
 
 print("Finished loading data.")
 
@@ -89,6 +89,52 @@ def corrstats(df, ghms, domains):
     print("Finished correlation statistics.")
 
 
+def regressionstats(df, ghms, domains):
+
+    from sklearn.linear_model import LinearRegression
+
+    # check if folder exists
+    results_path = "results/regression/"
+    if not os.path.isdir(results_path):
+        os.makedirs(results_path)
+
+    # loop over all variable pairs
+    for x in ["pr", "netrad"]:
+        for y in ["evap", "qr", "qtot"]:
+
+            stats_mat = np.zeros([len(ghms)+1,len(domains)+1])
+            stats_mat_partial = np.zeros([len(ghms)+1,len(domains)+1])
+
+            # loop over all models and domains
+            for i in range(0, len(ghms)):
+                for j in range(0, len(domains)):
+
+                    # calculate rank correlations
+                    input = df.loc[np.logical_and(df["ghm"]==ghms[i], df["domain_days_below_1_0.08_aridity_netrad"]==domains[j]), x]
+                    output = df.loc[np.logical_and(df["ghm"]==ghms[i], df["domain_days_below_1_0.08_aridity_netrad"]==domains[j]), y]
+                    reg = LinearRegression().fit(input.array.reshape(-1, 1), output.array)
+
+                    b0 = reg.intercept_
+                    b1 = reg.coef_
+
+                    stats_mat[i,j] = b1
+
+                stats_mat[i,len(domains)] = np.max(stats_mat[i,:-1]) - np.min(stats_mat[i,:-1])
+
+            for j in range(0, len(domains)):
+                stats_mat[len(ghms),j] = np.max(stats_mat[:-1,j]) - np.min(stats_mat[:-1,j])
+
+            stats_mat[len(ghms),len(domains)] = np.max(stats_mat[:-1,:-1]) - np.min(stats_mat[:-1,:-1])
+
+            df_stats = pd.DataFrame(stats_mat)
+            df_stats.columns = domains + ["range"]
+            df_stats = df_stats.transpose()
+            df_stats.columns = ghms + ["range"]
+            df_stats.to_csv(results_path + "regressionstats_" + x + "_" + y + ".csv", float_format='%.2f')
+
+    print("Finished regression statistics.")
+
+
 def scatterplots(df):
 
     # check if folder exists
@@ -123,6 +169,12 @@ def scatterplots(df):
             g = sns.FacetGrid(df, col="ghm", col_wrap=4, palette=palette)
             g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name,
                             domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
+            d = "domain_days_below_1_0.08_aridity_netrad"
+            n = 11
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
             g.set(xlim=x_lim, ylim=y_lim)
             if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
                 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
@@ -239,6 +291,12 @@ def scatterplots_ensemble(df):
             g = sns.FacetGrid(df_means, col="dummy", col_wrap=4, palette=palette)
             g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name,
                             domains="domain_days_below_1_0.08_aridity_netrad", alpha=1.0, s=1)
+            d = "domain_days_below_1_0.08_aridity_netrad"
+            n = 11
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
             g.set(xlim=x_lim, ylim=y_lim)
             if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
                 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
@@ -386,6 +444,62 @@ def coloured_scatterplots(df):
     print("Finished coloured scatter plots.")
 
 
+def regressionplots(df):
+
+    # check if folder exists
+    results_path = "results/regression/"
+    if not os.path.isdir(results_path):
+        os.makedirs(results_path)
+
+    # rename variables and models for paper
+    df.rename(columns = {'pr':'Precipitation', 'netrad':'Net radiation',
+                         'evap':'Actual evapotranspiration', 'qr':'Groundwater recharge', 'qtot':'Total runoff'}, inplace = True)
+    palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
+    df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
+    df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
+    df = df.sort_values(by=["sort_helper", "ghm"])
+    #new_names = {'clm45':'CLM4.5', 'jules-w1':'JULES-W1', 'lpjml':'LPJmL', 'matsiro':'MATSIRO', 'pcr-globwb':'PCR-GLOBWB', 'watergap2':'WaterGAP2', 'h08':'H08', 'cwatm':'CWatM'}
+    #df = df.replace(new_names, regex=True)
+
+    # define variables
+    x_name_list = ["Precipitation", "Net radiation", "totrad"]
+    x_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
+    x_lim_list = [[-100, 3100], [-100, 2100], [2400, 10100]]
+    y_name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff"]
+    y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
+    y_lim_list = [[-100, 2100], [-100, 2100], [-100, 2100]]
+
+    # loop over variables
+    for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
+
+        for y_name, y_unit, y_lim in zip(y_name_list, y_unit_list, y_lim_list):
+
+            sns.set_style("ticks",{'axes.grid' : True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in","ytick.direction": "in"})
+            g = sns.FacetGrid(df, col="ghm", col_wrap=4, palette=palette)
+            g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name,
+                            domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
+            g.set(xlim=x_lim, ylim=y_lim)
+            if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
+                g.map(plotting_fcts.plot_origin_line, x_name, y_name)
+            #g.map_dataframe(plotting_fcts.add_corr_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+            g.map_dataframe(plotting_fcts.add_regression_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", palette=palette)
+            g.set(xlabel=x_name+x_unit, ylabel=y_name+y_unit)
+            g.set_titles(col_template = '{col_name}')
+            g.tight_layout()
+            sns.despine(fig=g, top=False, right=False, left=False, bottom=False)
+            for axes in g.axes.ravel():
+                axes.legend(loc=(.0, .715), handletextpad=0.0, frameon=False, fontsize=9, labelspacing=0)
+
+            #for ghm in ghms:
+            #    print(x_name + " / " + y_name + " / " + ghm + " / total")
+            #    print(stats.spearmanr(df.loc[(df["ghm"]==ghm), x_name], df.loc[(df["ghm"]==ghm), y_name], nan_policy='omit'))
+
+            g.savefig(results_path + x_name + '_' + y_name + "_scatterplot.png", dpi=600, bbox_inches='tight')
+            plt.close()
+
+    print("Finished regression plots.")
+
+
 def latitude_plots(df):
 
     # note: changing var names in other plot affects df, so run this before the other plots
@@ -424,11 +538,13 @@ def latitude_plots(df):
 
 ### run functions ###
 
-latitude_plots(df)
+#latitude_plots(df)
 corrstats(df, ghms, domains)
+regressionstats(df, ghms, domains)
 scatterplots(df)
 scatterplots_per_domain(df)
 scatterplots_ensemble(df)
 budyko_plots(df)
 histogram_plots(df)
-#coloured_scatterplots(df)
+coloured_scatterplots(df)
+regressionplots(df)
