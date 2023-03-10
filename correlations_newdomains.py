@@ -156,7 +156,8 @@ def applyTest(X, y, lvar, test, binning=False):
 #tests = ["spearman", "lin-reg_r-seq"]
 #tests = ["spearman", "lin._corr-ratio", "pol._corr-ratio"]
 
-tests= ["spearman_partial","spearman","regression"]
+#tests= ["spearman_partial","spearman","regression"]
+tests= ["spearman"]
 
 #cats = ['Energy-Limited', 'Water-Limited']
 
@@ -273,4 +274,5 @@ for c in categories:
             l.append(data)
 
 df = pd.DataFrame(l)
-df.to_csv("results/correlations_partial.csv", index=False)
+#df.to_csv("results/correlations_partial.csv", index=False)
+df.to_csv("results/correlations_new_domains_new.csv", index=False)

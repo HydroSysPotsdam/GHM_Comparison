@@ -6,3 +6,4 @@ old/*
 *.bak
 .idea/*
 data/*
+zenodo/*
