@@ -6,3 +6,4 @@ old/*
 .idea/*
 data/*
 zenodo/*
+results/*

@@ -9,7 +9,7 @@ The repository contains
 - code to visualize and quantify functional relationships based on observational datasets (scatter plots, rank correlations),
 - code with additional checks (e.g. different model forcings for certain models).
 
-The long-term averages created and used in this study are deposited at 10.5281/zenodo.7714885. 
+The long-term averages created and used in this study are deposited at https://zenodo.org/record/7714885. 
 Correlations and other statistics are available in the Supporting Information. 
 Links to the data sources can be found in the paper.
 
