@@ -138,11 +138,12 @@ def regressionstats(df, ghms, domains):
 def scatterplots(df):
 
     # check if folder exists
-    results_path = "results/scatterplots/"
+    results_path = "results/scatterplots/" #subsample/
     if not os.path.isdir(results_path):
         os.makedirs(results_path)
 
     # rename variables and models for paper
+    #df = df.sample(8*10000)
     df.rename(columns = {'pr':'Precipitation', 'netrad':'Net radiation',
                          'evap':'Actual evapotranspiration', 'qr':'Groundwater recharge', 'qtot':'Total runoff'}, inplace = True)
     palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
@@ -539,12 +540,12 @@ def latitude_plots(df):
 ### run functions ###
 
 #latitude_plots(df)
-corrstats(df, ghms, domains)
-regressionstats(df, ghms, domains)
+#corrstats(df, ghms, domains)
+#regressionstats(df, ghms, domains)
 scatterplots(df)
-scatterplots_per_domain(df)
-scatterplots_ensemble(df)
-budyko_plots(df)
-histogram_plots(df)
-coloured_scatterplots(df)
-regressionplots(df)
+#scatterplots_per_domain(df)
+#scatterplots_ensemble(df)
+#budyko_plots(df)
+#histogram_plots(df)
+#coloured_scatterplots(df)
+#regressionplots(df)
