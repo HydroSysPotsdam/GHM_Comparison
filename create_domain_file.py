@@ -32,6 +32,10 @@ df_merged = pd.read_csv(data_path + "tasmin.csv", sep=',')
 df_tmp = pd.read_csv(data_path + "pr.csv", sep=',')
 df_tmp.columns = ["lat", "lon", "pr_median"] # dummy pr value, used only in domain file
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
+# new code: add GSWP3
+df_tmp = pd.read_csv("results/gswp3/30y_average_GSWP3.csv", sep=',')
+df_tmp.columns = ["lon", "lat", "pr_gswp3"] #
+df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer').dropna()
 for var_name in var_name_list:  # loop over all models
     df_tmp = pd.read_csv(data_path + var_name + ".csv", sep=',')
     df_tmp.columns = ["lat", "lon", var_name]
@@ -39,7 +43,8 @@ for var_name in var_name_list:  # loop over all models
 
 df_merged["netrad_median"] = df_merged.iloc[:,4:4+len(var_name_list)].median(axis=1)*12.87 # median to account for outliers
 df_merged["aridity_netrad"] = df_merged["netrad_median"]/df_merged["pr_median"]
-df_aridity_netrad = df_merged[["lat","lon","pr_median","netrad_median","aridity_netrad"]]
+df_merged["aridity_netrad_gswp3"] = df_merged["netrad_median"]/df_merged["pr_gswp3"]
+df_aridity_netrad = df_merged[["lat","lon","pr_median","pr_gswp3","netrad_median","aridity_netrad","aridity_netrad_gswp3"]]
 
 ### potevap ###
 ghms = ["watergap2", "h08", "lpjml", "pcr-globwb", "matsiro"] # "matsiro" is ET
@@ -48,6 +53,10 @@ df_merged = pd.read_csv(data_path + "tasmin.csv", sep=',')
 df_tmp = pd.read_csv(data_path + "pr.csv", sep=',')
 df_tmp.columns = ["lat", "lon", "pr_median"] # dummy pr value, used only in domain file
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
+# new code: add GSWP3
+df_tmp = pd.read_csv("results/gswp3/30y_average_GSWP3.csv", sep=',')
+df_tmp.columns = ["lon", "lat", "pr_gswp3"] #
+df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer').dropna()
 for ghm in ghms:  # loop over all models
     df_tmp = pd.read_csv(data_path + ghm + "/potevap.csv", sep=',')
     df_tmp.columns = ["lat", "lon", "potevap_"+ghm]
@@ -55,7 +64,8 @@ for ghm in ghms:  # loop over all models
 
 df_merged["potevap_median"] = df_merged.iloc[:,4:4+len(ghms)].median(axis=1) # median to account for outliers
 df_merged["aridity_potevap"] = df_merged["potevap_median"]/df_merged["pr_median"]
-df_aridity_potevap = df_merged[["lat","lon","potevap_median","aridity_potevap"]]
+df_merged["aridity_potevap_gswp3"] = df_merged["potevap_median"]/df_merged["pr_gswp3"]
+df_aridity_potevap = df_merged[["lat","lon","potevap_median","aridity_potevap","aridity_potevap_gswp3"]]
 
 ### temperature ###
 df_temperature = pd.read_csv(data_path + "days_below_6.7.csv", sep=',')
@@ -79,7 +89,7 @@ thresh = [1/12, 3/12]
 
 for i in [0,1]:
 
-    for aridity in ["aridity_netrad", "aridity_potevap"]:
+    for aridity in ["aridity_netrad", "aridity_potevap", "aridity_netrad_gswp3", "aridity_potevap_gswp3"]:
 
         plt.rcParams['axes.linewidth'] = 0.1
         fig = plt.figure()

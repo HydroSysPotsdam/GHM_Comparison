@@ -64,6 +64,8 @@ df.rename(columns={'pr': 'Precipitation', 'netrad': 'Net radiation',
                    'evap_Budyko': 'Actual evapotranspiration', 'qr': 'Groundwater recharge', 'qtot_Budyko': 'Total runoff'}, inplace=True)
 df["dummy"] = ""
 palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
+#palette = {"wet warm": '#4477AA', "dry warm": '#EE6677', "wet cold": '#66CCEE', "dry cold": '#CCBB44'}
+
 df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
 df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
 df = df.sort_values(by=["sort_helper"])
