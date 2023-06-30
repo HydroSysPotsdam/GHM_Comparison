@@ -23,7 +23,7 @@ for decade in ['1971_1980', '1981_1990', '1991_2000', '2001_2010']:
     for i in range(0,len(tmp.time)):
         year = pd.to_datetime(tmp.time[i].values).year
         pr_year = tmp.sel(time=slice(dt(year, 1, 1), dt(year, 12, 31)))
-        pr_year.to_netcdf(results_path + "average_GSWP3_" + str(year))
+        pr_year.to_netcdf(results_path + "average_GSWP3_" + str(year) + ".nc4")
 
 # load and process data
 pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1941_1950.nc4')
@@ -43,6 +43,6 @@ pr = pr.mean("time")*86400*0.001*1000 # to mm/y
 
 df_pr = pr.to_dataframe().reset_index().dropna()
 
-pr.to_netcdf(results_path + "30y_average_GSWP3")
+pr.to_netcdf(results_path + "30y_average_GSWP3.nc4")
 df_pr.to_csv(results_path + "30y_average_GSWP3.csv", index=False)
 
