@@ -21,6 +21,7 @@ results_path = "results/moeck/"
 if not os.path.isdir(results_path):
     os.makedirs(results_path)
 
+"""
 # test other P data
 pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
 #pr = weighted_temporal_mean(pr, "pr")
@@ -39,6 +40,7 @@ pr = pr.mean("time")
 df_pr = pr.to_dataframe().reset_index().dropna()
 df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
 #df_pr.columns = ['lat', 'lon', 'pr_gswp3']
+"""
 
 # load and process data
 df = pd.read_csv(data_path + "global_groundwater_recharge_moeck-et-al.csv", sep=',')
@@ -70,21 +72,8 @@ df.loc[df["pr"] > 50000, "pr"] = np.nan  # 65535
 df['pr'] = df['pr'] * 0.1
 """
 
-"""
-# test climate classification
-coord_list = [(x,y) for x,y in zip(df['lon'], df['lat'])]
-cc_path = "C:/Users/gnann/Desktop/16ctquxqxk46h2v61gz7drcdz3/ClimateClassification_mainMap_geoReferenced.tif"
-# open all datasets
-cc = rio.open(cc_path, masked=True)
-df['cc'] = [x for x in cc.sample(coord_list)]
-# transform to np.arrays and rescale variables
-df['cc'] = np.concatenate(df['cc'].to_numpy())
-# remove nodata values
-df.loc[df["cc"] > 50000, "cc"] = np.nan
-"""
-
 # scatter plot
-df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
+#df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
 df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Groundwater recharge [mm/y]': 'Groundwater recharge'}, inplace=True)
@@ -96,8 +85,8 @@ df = df.sort_values(by=["sort_helper"])
 
 x_name = "Precipitation GSWP3"
 # because many R values are paired with exactly the same P value, this will help binning the data
-# todo: find a better solution... this will randomly place R values into different bins and thus leads to different plots...
 df[x_name] = (1+0.001*np.random.rand(len(df[x_name])))*df[x_name]
+# this will randomly place R values into different bins and thus leads to slightly different plots
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"

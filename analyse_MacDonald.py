@@ -18,6 +18,7 @@ results_path = "results/macdonald/"
 if not os.path.isdir(results_path):
     os.makedirs(results_path)
 
+"""
 # test other P data
 pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
 #pr = weighted_temporal_mean(pr, "pr")
@@ -37,6 +38,7 @@ pr = pr.mean("time")
 df_pr = pr.to_dataframe().reset_index().dropna()
 df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
 #df_pr.columns = ['lat', 'lon', 'pr_gswp3']
+"""
 
 # load and process data
 df = pd.read_csv(data_path + "Recharge_data_Africa_BGS.csv", sep=';')
@@ -54,7 +56,7 @@ closest = closest.rename(columns={'geometry': 'closest_geom'})
 df = gdf.join(closest) # merge the datasets by index (for this, it is good to use '.join()' -function)
 
 # scatter plot
-df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
+#df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
 df.rename(columns={'LTA_P_mmpa': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Recharge_mmpa': 'Groundwater recharge'}, inplace=True)
@@ -89,7 +91,7 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_MacDonald.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-x_name = "Precipitation"
+x_name = "Precipitation GSWP3"
 y_name = "Groundwater recharge"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"

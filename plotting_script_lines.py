@@ -38,7 +38,7 @@ def plot_Budyko(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls="solid")
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls="dashed")
 
 def plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n):
 
@@ -50,7 +50,7 @@ def plot_FLUXCOM(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
 
 def plot_FLUXNET(d, domain_list, x_name, y_name, axs, n):
 
@@ -64,7 +64,7 @@ def plot_FLUXNET(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='solid')
 
 def plot_Moeck(d, domain_list, x_name, y_name, axs, n):
 
@@ -76,7 +76,7 @@ def plot_Moeck(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='solid')
 
 def plot_MacDonald(d, domain_list, x_name, y_name, axs, n):
 
@@ -91,7 +91,7 @@ def plot_MacDonald(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashdot')
 
 def plot_GSIM(d, domain_list, x_name, y_name, axs, n):
 
@@ -105,7 +105,7 @@ def plot_GSIM(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='solid')
 
 def plot_GRUN(d, domain_list, x_name, y_name, axs, n):
 
@@ -119,7 +119,7 @@ def plot_GRUN(d, domain_list, x_name, y_name, axs, n):
         subgroup = df[d] == domain_list[i]
         x = df.loc[subgroup, x_name]
         y = df.loc[subgroup, y_name]
-        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dashed')
+        plotting_fcts.plot_lines(x, y, axs[i], data_palette, domains, domain_list[i], n=n, ls='dotted')
 
 def plot_CARAVAN(d, domain_list, x_name, y_name, axs, n):
 
@@ -196,27 +196,30 @@ def multilineplots(df):
                 axs[i].set_xlim(x_lim[i])
                 axs[i].set_ylim(y_lim[i])
                 #axs[i].set_title(domain_list[i])
-                #plotting_fcts.plot_origin_line_alt(axs[i])
 
                 if x_name=="$P$" and y_name=="$E_a$":
                     plot_FLUXCOM(d, domain_list, "Precipitation GSWP3", "Actual evapotranspiration", axs, n)
                     #plot_FLUXNET(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
                     plot_Budyko(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
+                    plotting_fcts.plot_origin_line_alt(axs[i])
 
                 if x_name=="$P$" and y_name=="$R$":
                     plot_MacDonald(d, domain_list, "Precipitation", "Groundwater recharge", axs, 6)
                     plot_Moeck(d, domain_list, "Precipitation GSWP3", "Groundwater recharge", axs, 6)
+                    plotting_fcts.plot_origin_line_alt(axs[i])
 
                 if x_name=="$P$" and y_name=="$Q$":
                     plot_GSIM(d, domain_list, "Precipitation", "Total runoff", axs, n)
                     plot_GRUN(d, domain_list, "Precipitation GSWP3", "Total runoff", axs, n)
                     #plot_CARAVAN(d, domain_list, "Precipitation", "Total runoff", axs, n)
                     plot_Budyko(d, domain_list, "Precipitation", "Total runoff", axs, n)
+                    plotting_fcts.plot_origin_line_alt(axs[i])
 
                 if x_name=="$N$" and y_name=="$E_a$":
                     plot_FLUXCOM(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
                     #plot_FLUXNET(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
                     plot_Budyko(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
+                    plotting_fcts.plot_origin_line_alt(axs[i])
 
             plt.tight_layout()
             fig.savefig(results_path + x_name + '_' + y_name + "_multiline_plot.png", dpi=600, bbox_inches='tight')

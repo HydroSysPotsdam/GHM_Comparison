@@ -1,5 +1,4 @@
-# from https://automating-gis-processes.github.io/site/notebooks/L3/nearest-neighbor-faster.html
-
+# https://autogis-site.readthedocs.io/en/2019/notebooks/L3/nearest-neighbor-faster.html
 from sklearn.neighbors import BallTree
 import numpy as np
 

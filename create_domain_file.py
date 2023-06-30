@@ -41,7 +41,8 @@ for var_name in var_name_list:  # loop over all models
     df_tmp.columns = ["lat", "lon", var_name]
     df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
 
-df_merged["netrad_median"] = df_merged.iloc[:,4:4+len(var_name_list)].median(axis=1)*12.87 # median to account for outliers
+n=5 # existing columns
+df_merged["netrad_median"] = df_merged.iloc[:,n:n+len(var_name_list)].median(axis=1)*12.87 # median to account for outliers
 df_merged["aridity_netrad"] = df_merged["netrad_median"]/df_merged["pr_median"]
 df_merged["aridity_netrad_gswp3"] = df_merged["netrad_median"]/df_merged["pr_gswp3"]
 df_aridity_netrad = df_merged[["lat","lon","pr_median","pr_gswp3","netrad_median","aridity_netrad","aridity_netrad_gswp3"]]
@@ -62,7 +63,8 @@ for ghm in ghms:  # loop over all models
     df_tmp.columns = ["lat", "lon", "potevap_"+ghm]
     df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
 
-df_merged["potevap_median"] = df_merged.iloc[:,4:4+len(ghms)].median(axis=1) # median to account for outliers
+n=5 # existing columns
+df_merged["potevap_median"] = df_merged.iloc[:,n:n+len(ghms)].median(axis=1) # median to account for outliers
 df_merged["aridity_potevap"] = df_merged["potevap_median"]/df_merged["pr_median"]
 df_merged["aridity_potevap_gswp3"] = df_merged["potevap_median"]/df_merged["pr_gswp3"]
 df_aridity_potevap = df_merged[["lat","lon","potevap_median","aridity_potevap","aridity_potevap_gswp3"]]
@@ -78,7 +80,7 @@ df_temperature.columns = ["lat", "lon", "days_below_6.7", "days_below_2.85", "da
 # get single dataframe
 df_domains = pd.merge(df_aridity_netrad, df_aridity_potevap, on=['lat', 'lon'], how='outer')
 df_domains = pd.merge(df_domains, df_temperature, on=['lat', 'lon'], how='outer')
-df_domains = df_domains.dropna()
+df_domains = df_domains.dropna().reset_index()
 
 print("Finished data preparation.")
 
@@ -89,7 +91,7 @@ thresh = [1/12, 3/12]
 
 for i in [0,1]:
 
-    for aridity in ["aridity_netrad", "aridity_potevap", "aridity_netrad_gswp3", "aridity_potevap_gswp3"]:
+    for aridity in ["aridity_netrad", "aridity_potevap", "aridity_netrad_gswp3", "aridity_potevap_gswp3"]: #
 
         plt.rcParams['axes.linewidth'] = 0.1
         fig = plt.figure()
