@@ -33,13 +33,13 @@ def globalmeans(df, ghms, domains):
     # grid cell areas
     area = xr.open_dataset("model_outputs/2b/aggregated/watergap_22d_continentalarea.nc4", decode_times=False)
     df_area = area.to_dataframe().reset_index().dropna()
-    plotting_fcts.plot_map(df_area["lon"], df_area["lat"], df_area["continentalarea"], " km^2", "Contental area", np.linspace(0, 4000, 11))
+    plotting_fcts.plot_map(df_area["lon"], df_area["lat"], df_area["continentalarea"], " km^2", "Continental area", np.linspace(0, 4000, 11))
     ax = plt.gca()
     ax.coastlines(linewidth=0.5)
     plt.savefig(results_path + "continentalarea_map.png", dpi=600, bbox_inches='tight')
     plt.close()
 
-    df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')
+    df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')#.dropna()
 
     # calculate means, std, and medians
     df_weighted = df.copy()
@@ -62,14 +62,24 @@ def globalmeans(df, ghms, domains):
 
     for d in domains:
         df_tmp = df.loc[(df["domain_days_below_1_0.08_aridity_netrad"]==d)]
+        print(d)
+        print(df_tmp["continentalarea"].sum()/df["continentalarea"].sum())
+        print(df_tmp["continentalarea"].count()/df["continentalarea"].count())
+
+        df_tmp["pr"] = df_tmp["pr"] * df_tmp["continentalarea"]
+        df_tmp["netrad"] = df_tmp["netrad"]* df_tmp["continentalarea"]
+        df_tmp["evap"] = df_tmp["evap"]* df_tmp["continentalarea"]
+        df_tmp["qr"] = df_tmp["qr"]* df_tmp["continentalarea"]
+        df_tmp["qtot"] = df_tmp["qtot"]* df_tmp["continentalarea"]
         # calculate means, std, and medians
         df_means = df_tmp.groupby(["ghm"]).mean()
+        df_means = df_means.iloc[:,:-1].div(df_means["continentalarea"], axis=0)
         df_means["evap_pr"] = df_means["evap"]/df_means["pr"]
         df_means["qr_pr"] = df_means["qr"]/df_means["pr"]
         df_means["qtot_pr"] = df_means["qtot"]/df_means["pr"]
         df_means.loc['mean'] = df_means[0:7].mean()
         df_means.loc['std'] = df_means[0:7].std()
-        df_means.loc['cov'] = df_means.loc['std']/df_means.loc['mean']
+        #df_means.loc['cov'] = df_means.loc['std']/df_means.loc['mean']
         df_means.loc['min'] = df_means[0:7].min()
         df_means.loc['max'] = df_means[0:7].max()
         df_means[["pr", "netrad", "evap", "qr", "qtot", "evap_pr", "qr_pr", "qtot_pr"]].transpose().to_csv(results_path + "means_" + d + ".csv", float_format='%.2f')
@@ -98,7 +108,7 @@ def map_plots(df, ghms):
 
     name_list = ["Evapotranspiration ratio", "Recharge ratio", "Runoff ratio"]
     unit_list = [" [-]", " [-]", " [-]"]
-    lim_list = [[0, 1.25], [0, 1.25], [0, 1.25]]
+    lim_list = [[0, 1.25], [0, 0.25], [0, 1.25]]
 
     # loop over variables
     for name, unit, lim in zip(name_list, unit_list, lim_list):
@@ -185,13 +195,13 @@ def white_spaces_plots(df, ghms):
     # define variables
     name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff"]
     lim_list = [[0, 1], [0, 1], [0, 1]] #
-    lim_list = [[0, .2], [0, .2], [0, .2]] #lim_list = [[0, 2], [0, 2], [0, 2]]
-    lim_list = [[0, 200], [0, 200], [0, 200]]
+    #lim_list = [[0, .2], [0, .2], [0, .2]] #lim_list = [[0, 2], [0, 2], [0, 2]]
+    #lim_list = [[0, 200], [0, 200], [0, 200]]
     #lim_list = [[0, 1000], [0, 1000], [0, 1000]]
     color_scale_list = ['Greens', 'Purples', 'Blues']
 
     # define plot type (coefficient of variation or standard deviation of ratio)
-    var_type = 'std'#'mean'#'CoV' #'std' #'ratio'
+    var_type = 'CoV'#'mean'#'CoV' #'std' #'ratio'
 
     # check if folder exists
     results_path = "results/white_spaces/"
@@ -321,8 +331,8 @@ def most_deviating_model_plot(df, ghms):
 
 ### run functions ###
 
-#globalmeans(df, ghms, domains)
-#map_plots(df, ghms)
+globalmeans(df, ghms, domains)
+map_plots(df, ghms)
 #aridity_map_plots(df, ghms)
 #outlier_plots(df, ghms)
 white_spaces_plots(df, ghms)

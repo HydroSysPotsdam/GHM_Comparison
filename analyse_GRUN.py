@@ -21,6 +21,7 @@ if not os.path.isdir(results_path):
 # load and process data
 file_path = "GRUN_v1_GSWP3_WGS84_05_1902_2014.nc"
 
+"""
 # test other P data
 pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1941_1950.nc4')
 #pr = weighted_temporal_mean(pr, "pr")
@@ -49,6 +50,7 @@ ax = plt.gca()
 ax.coastlines(linewidth=0.5)
 plt.savefig(results_path + var + "_map.png", dpi=600, bbox_inches='tight')
 plt.close()
+"""
 
 # get multi annual averages
 var = "Runoff"
@@ -80,7 +82,8 @@ df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')
 # scatter plot
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df, df_domains, on=['lat', 'lon'], how='outer')
-df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
+#df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
+df = df.dropna()
 df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff'}, inplace=True)
 df["dummy"] = ""
@@ -90,12 +93,19 @@ df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dr
 df = df.sort_values(by=["sort_helper"])
 
 df_weighted = df.copy().dropna()
-print((df_weighted["Total runoff"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df["Total runoff"].mean())
-print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df["Precipitation GSWP3"].mean())
-#print((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-#print(df["Precipitation GSWP3"].mean())
+print(np.round((df_weighted["Total runoff"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(), 2))
+print(np.round(df["Total runoff"].mean(), 2))
+print(np.round((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(), 2))
+print(np.round(df["Precipitation GSWP3"].mean(), 2))
+#print(np.round((df_weighted["Precipitation GSWP3"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(), 2))
+#print(dnp.round(f["Precipitation GSWP3"].mean(), 2))
+
+domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
+for d in domains:
+    df_tmp = df.loc[(df["domain_days_below_1_0.08_aridity_netrad"] == d)]
+    print(d)
+    print(np.round((df_tmp["Total runoff"]*df_tmp["continentalarea"]).sum()/df_tmp["continentalarea"].sum(), 2))
+    print(np.round((df_tmp["Precipitation GSWP3"]*df_tmp["continentalarea"]).sum()/df_tmp["continentalarea"].sum(), 2))
 
 x_name = "Precipitation GSWP3"
 y_name = "Total runoff"

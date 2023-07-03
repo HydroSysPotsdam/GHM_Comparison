@@ -56,9 +56,29 @@ for name, var in zip(name_list, var_list):
     df[name] = df[name] * (10**6/86400)*12.87 # MJ m^-2 d^-1 into W m^-2 into mm/y
     df_tot = pd.merge(df_tot, df, on=['lat', 'lon'], how='outer')
 
-df_tot = df_tot.dropna()
+"""
+# add land area
+d = xr.open_dataset("D:/Data/FLUXCOM/ancillary/landfraction.720_360.nc")
+df_land = d.to_dataframe().reset_index().dropna()
+df_tot = pd.merge(df_tot, df_land, on=['lat', 'lon'], how='outer')
+"""
+"""
+# add vegetated area
+d = xr.open_dataset("D:/Data/FLUXCOM/ancillary/vegfraction.720_360.nc")
+df_veg = d.to_dataframe().reset_index()#.dropna()
+df_tot = pd.merge(df_tot, df_veg, on=['lat', 'lon'], how='inner')
+df_tot[(df_tot["vegfraction"]<0.95)] = np.nan
 
 # plot map
+var = "vegfraction"
+plotting_fcts.plot_map(df_tot["lon"], df_tot["lat"], df_tot[var], " [mm/y]", var, np.linspace(0, 1, 11))
+#plotting_fcts.mask_greenland("2b/aggregated/")
+ax = plt.gca()
+ax.coastlines(linewidth=0.5)
+plt.savefig(results_path + var + "_map.png", dpi=600, bbox_inches='tight')
+plt.close()
+"""
+
 var = "Rn"
 plotting_fcts.plot_map(df_tot["lon"], df_tot["lat"], df_tot[var], " [mm/y]", var, np.linspace(0, 2000, 11))
 #plotting_fcts.mask_greenland("2b/aggregated/")
@@ -67,6 +87,7 @@ ax.coastlines(linewidth=0.5)
 plt.savefig(results_path + var + "_map.png", dpi=600, bbox_inches='tight')
 plt.close()
 
+"""
 # test other P data
 pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
 #pr = weighted_temporal_mean(pr, "pr")
@@ -86,24 +107,17 @@ pr = pr.mean("time")
 df_pr = pr.to_dataframe().reset_index().dropna()
 df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
 df_tot = pd.merge(df_tot, df_pr, on=['lat', 'lon'], how='outer')
+"""
 
 # grid cell areas
 area = xr.open_dataset("model_outputs/2b/aggregated/watergap_22d_continentalarea.nc4", decode_times=False)
 df_area = area.to_dataframe().reset_index().dropna()
 df_tot = pd.merge(df_tot, df_area, on=['lat', 'lon'], how='outer')
 
-# global averages need to be weighted due to different grid cell areas
-df_weighted = df_tot.copy().dropna()
-print((df_weighted["H"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_tot["H"].mean())
-print((df_weighted["LE"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_tot["LE"].mean())
-print((df_weighted["Rn"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_tot["Rn"].mean())
-
 # scatter plot
 df_domains = pd.read_csv("model_outputs/2b/aggregated/domains.csv", sep=',')
 df = pd.merge(df_tot, df_domains, on=['lat', 'lon'], how='outer')
+df = df.dropna()
 df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3', 'netrad_median': 'Net radiation ISIMIP',
                    'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'qtot': 'Total runoff',
                    'LE': 'Actual evapotranspiration', 'H': 'Sensible heat', 'Rn': 'Net radiation'}, inplace=True)
@@ -113,6 +127,44 @@ df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
 df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
 df = df.sort_values(by=["sort_helper"])
 
+# global averages need to be weighted due to different grid cell areas
+df_weighted = df.copy().dropna()
+print(np.round((df_weighted["Sensible heat"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round(df["Sensible heat"].mean(),2))
+print(np.round((df_weighted["Actual evapotranspiration"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round(df["Actual evapotranspiration"].mean(),2))
+print(np.round((df_weighted["Net radiation"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round(df["Net radiation"].mean(),2))
+
+domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
+for d in domains:
+    df_tmp = df.loc[(df["domain_days_below_1_0.08_aridity_netrad"] == d)]
+    print(d)
+    print(np.round((df_tmp["Sensible heat"] * df_tmp["continentalarea"]).sum() / df_tmp["continentalarea"].sum(), 2))
+    print(np.round((df_tmp["Actual evapotranspiration"] * df_tmp["continentalarea"]).sum() / df_tmp["continentalarea"].sum(), 2))
+    print(np.round((df_tmp["Net radiation"] * df_tmp["continentalarea"]).sum() / df_tmp["continentalarea"].sum(), 2))
+
+# from FLUXCOM paper
+# vegetated = 0.765, cold deserts = 0.108, hot deserts = 0.1265
+# global mean net radiation as 75.49 Wm-2, sensible heat as 32.39 Wm−2, latent heat  as 39.14 Wm−2
+# hot deserts: 5.9356 MJ m−2 day−1 for Rn and 5.8264 MJ m−2 day−1 for H
+# cold deserts: Rn as −0.1826 MJ m−2 day−1 and H was der of −33.2 Wm−2 (−2.8685 MJ m−2 day−1)
+weights = np.array([0.765, 0.108, 0.1265])
+mean_Rn = np.array([0, -0.1826*(10**6/86500)*12.87, 5.9356*(10**6/86500)*12.87])
+mean_H = np.array([0, -2.8685*(10**6/86500)*12.87, 5.8264*(10**6/86500)*12.87])
+mean_LE = np.array([0, 0.001, 0.001]) # assuming desert LE is minimal
+global_Rn = 75.49*12.87
+global_H = 32.39*12.87
+global_LE = 39.14*12.87
+mean_LE[0] = (global_LE - mean_LE[1]*weights[1] - mean_LE[2] * weights[2])/weights[0]
+mean_Rn[0] = (global_Rn - mean_Rn[1]*weights[1] - mean_Rn[2] * weights[2])/weights[0]
+mean_H[0] = (global_H - mean_H[1]*weights[1] - mean_H[2] * weights[2])/weights[0]
+print('Recalculated averages from FLUXCOM paper:')
+print(np.round(mean_LE[0],2))
+print(np.round(mean_Rn[0],2))
+print(np.round(mean_H[0],2))
+
+# scatter plots
 x_name = "Precipitation GSWP3"
 y_name = "Actual evapotranspiration"
 x_unit = " [mm/yr]"

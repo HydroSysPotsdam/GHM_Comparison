@@ -49,15 +49,23 @@ df = pd.merge(df, df_area, on=['lat', 'lon'], how='outer')
 
 # global averages need to be weighted due to different grid cell areas
 df_weighted = df.loc[(df["source"]=="netrad")].copy().dropna()
-print((df_weighted["evap_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_weighted["evap_Budyko"].mean())
-print((df_weighted["qtot_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_weighted["qtot_Budyko"].mean())
-print((df_weighted["pr"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum())
-print(df_weighted["pr"].mean())
-print(df.loc[(df["source"]=="netrad"), "evap_Budyko"].mean())
-print(df.loc[(df["source"]=="netrad"), "qtot_Budyko"].mean())
-print(df.loc[(df["source"]=="netrad"), "qtot_Budyko"].mean() + df.loc[(df["source"]=="netrad"), "evap_Budyko"].mean())
+print(np.round((df_weighted["evap_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round(df_weighted["evap_Budyko"].mean(),2))
+print(np.round((df_weighted["qtot_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round(df_weighted["qtot_Budyko"].mean(),2))
+# compare mean precip to mean evap+qtot
+print(np.round((df_weighted["pr"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+print(np.round((df_weighted["evap_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum() +
+      (df_weighted["qtot_Budyko"]*df_weighted["continentalarea"]).sum()/df_weighted["continentalarea"].sum(),2))
+
+domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
+for d in domains:
+    df_tmp = df.loc[(df["domain_days_below_1_0.08_aridity_netrad"] == d)]
+    print(d)
+    print(np.round((df_tmp["evap_Budyko"] * df_tmp["continentalarea"]).sum() / df_tmp["continentalarea"].sum(),2))
+    #print(np.round(df_tmp["evap_Budyko"].mean(),2))
+    print(np.round((df_tmp["qtot_Budyko"] * df_tmp["continentalarea"]).sum() / df_tmp["continentalarea"].sum(),2))
+    #print(np.round(df_tmp["qtot_Budyko"].mean(),2))
 
 # scatter plot
 df.rename(columns={'pr': 'Precipitation', 'netrad': 'Net radiation',

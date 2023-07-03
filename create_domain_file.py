@@ -168,18 +168,39 @@ df_potevap.to_csv("model_outputs/2b/aggregated/potevap_median.csv", index=False)
 # grid cell areas
 area = xr.open_dataset("model_outputs/2b/aggregated/watergap_22d_continentalarea.nc4", decode_times=False)
 df_area = area.to_dataframe().reset_index().dropna()
-df_domains = pd.merge(df_domains, df_area, on=['lat', 'lon'], how='outer')
-print("Continental area")
+df_domains = pd.merge(df_domains, df_area, on=['lat', 'lon'], how='outer').dropna()
+print("Fraction of grid cells")
 print("Wet warm")
-print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet warm", "continentalarea"].sum())))
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet warm", "continentalarea"].count()) /
+          df_domains["continentalarea"].count()))
 print("Wet cold")
-print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet cold", "continentalarea"].sum())))
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet cold", "continentalarea"].count()) /
+          df_domains["continentalarea"].count()))
 print("Dry cold")
-print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry cold", "continentalarea"].sum())))
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry cold", "continentalarea"].count()) /
+          df_domains["continentalarea"].count()))
 print("Dry warm")
-print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry warm", "continentalarea"].sum())))
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry warm", "continentalarea"].count()) /
+          df_domains["continentalarea"].count()))
+print("Total")
+print(str(np.round(df_domains["continentalarea"].count())))
+
+print("Fraction of continental area")
+print("Wet warm")
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet warm", "continentalarea"].sum()) /
+          df_domains["continentalarea"].sum()))
+print("Wet cold")
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="wet cold", "continentalarea"].sum()) /
+          df_domains["continentalarea"].sum()))
+print("Dry cold")
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry cold", "continentalarea"].sum()) /
+          df_domains["continentalarea"].sum()))
+print("Dry warm")
+print(str(np.round(df_domains.loc[df_domains["domain_days_below_1_0.08_aridity_netrad"]=="dry warm", "continentalarea"].sum()) /
+          df_domains["continentalarea"].sum()))
 print("Total")
 print(str(np.round(df_domains["continentalarea"].sum())))
+
 
 # scatter plot
 palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
