@@ -209,7 +209,7 @@ def multilineplots(df):
                     plotting_fcts.plot_origin_line_alt(axs[i])
 
                 if x_name=="$P$" and y_name=="$Q$":
-                    plot_GSIM(d, domain_list, "Precipitation", "Total runoff", axs, n)
+                    plot_GSIM(d, domain_list, "Precipitation GSWP3", "Total runoff", axs, n)
                     plot_GRUN(d, domain_list, "Precipitation GSWP3", "Total runoff", axs, n)
                     #plot_CARAVAN(d, domain_list, "Precipitation", "Total runoff", axs, n)
                     plot_Budyko(d, domain_list, "Precipitation", "Total runoff", axs, n)
@@ -219,6 +219,10 @@ def multilineplots(df):
                     plot_FLUXCOM(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
                     #plot_FLUXNET(d, domain_list, "Precipitation", "Actual evapotranspiration", axs, n)
                     plot_Budyko(d, domain_list, "Net radiation", "Actual evapotranspiration", axs, n)
+                    plotting_fcts.plot_origin_line_alt(axs[i])
+
+                if x_name=="$N$" and y_name=="$Q$":
+                    plot_Budyko(d, domain_list, "Net radiation", "Total runoff", axs, n)
                     plotting_fcts.plot_origin_line_alt(axs[i])
 
             plt.tight_layout()

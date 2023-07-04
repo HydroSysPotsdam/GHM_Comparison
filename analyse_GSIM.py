@@ -20,7 +20,12 @@ if not os.path.isdir(results_path):
     os.makedirs(results_path)
 
 # load and process data
-df = pd.read_csv(data_path + "GSIM_P_Q_data.csv", sep=',')
+#df = pd.read_csv(data_path + "GSIM_P_Q_data.csv", sep=',')
+#df = df.dropna()
+#df = df.reset_index()
+#df = df.drop(df.columns[[0,1]], axis=1)
+
+df = pd.read_csv(data_path + "GSIM_P_Q_data_gswp3.csv", sep=',')
 df = df.dropna()
 df = df.reset_index()
 df = df.drop(df.columns[[0,1]], axis=1)
@@ -43,17 +48,19 @@ df = gdf.join(closest, rsuffix="_gsim") # merge the datasets by index (for this,
 #test = gpd.sjoin_nearest(gdf, gdf_domains)
 
 # scatter plot
-df.rename(columns={'mean_annualP': 'Precipitation', 'netrad_median': 'Net radiation',
+df.rename(columns={'mean_annual_Pgswp3': 'Precipitation GSWP3', 'mean_annual_PHadGEM2': 'Precipitation HadGEM2', 'netrad_median': 'Net radiation',
                'evap': 'Actual ET', 'qr': 'Groundwater recharge', 'mean_annualQ_mm': 'Total runoff'}, inplace=True)
 df["dummy"] = ""
 df = df.loc[np.logical_and(df["area"]>250,df["area"]<25000)] # approx. between 10 and 1000% of a grid cell
 df = df.loc[(df["num_years"]>10)]
+df = df.loc[(df["QF_homog_suspect"]==True)]
+df = df.loc[(np.logical_or(df["quality"]=="High", df["quality"]=="Medium"))]
 palette = {"wet warm": '#018571', "dry warm": '#a6611a', "wet cold": '#80cdc1', "dry cold": '#dfc27d'}
 df["sort_helper"] = df["domain_days_below_1_0.08_aridity_netrad"]
 df["sort_helper"] = df["sort_helper"].replace({'wet warm': 0, 'wet cold': 1, 'dry cold': 2, 'dry warm': 3})
 df = df.sort_values(by=["sort_helper"])
 
-x_name = "Precipitation"
+x_name = "Precipitation GSWP3"
 y_name = "Total runoff"
 x_unit = " [mm/yr]"
 y_unit = " [mm/yr]"
@@ -76,10 +83,6 @@ for axes in g.axes.ravel():
 g.savefig(results_path + x_name + '_' + y_name + "_scatterplot_GSIM.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-x_name = "Precipitation"
-y_name = "Total runoff"
-x_unit = " [mm/yr]"
-y_unit = " [mm/yr]"
 sns.set_style("ticks", {'axes.grid': True, "grid.color": ".85", "grid.linestyle": "-", "xtick.direction": "in", "ytick.direction": "in"})
 g = sns.FacetGrid(df, col="dummy", col_wrap=4, palette=palette)
 g.map_dataframe(plotting_fcts.plot_coloured_scatter_random_domains, x_name, y_name, domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=5)
@@ -117,3 +120,4 @@ print(df["domain_days_below_1_0.08_aridity_netrad"].value_counts()/df["domain_da
 
 # save data to df
 df.to_csv("data/" + "GSIM_prepared.csv", index=False)
+print(df.__len__())
