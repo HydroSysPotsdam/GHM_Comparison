@@ -57,23 +57,7 @@ closest = get_nearest_neighbour.nearest_neighbor(gdf, gdf_domains, return_dist=T
 closest = closest.rename(columns={'geometry': 'closest_geom'})
 df = gdf.join(closest) # merge the datasets by index (for this, it is good to use '.join()' -function)
 
-"""
-# test other P dataset
-coord_list = [(x,y) for x,y in zip(df['lon'], df['lat'])]
-pr_path = "D:/Data/CHELSA/CHELSA_bio12_1981-2010_V.2.1.tif"
-# open all datasets
-pr = rio.open(pr_path, masked=True)
-df['pr'] = [x for x in pr.sample(coord_list)]
-# transform to np.arrays and rescale variables
-df['pr'] = np.concatenate(df['pr'].to_numpy())
-# remove nodata values
-df.loc[df["pr"] > 50000, "pr"] = np.nan  # 65535
-# transform values
-df['pr'] = df['pr'] * 0.1
-"""
-
 # scatter plot
-#df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
 df.rename(columns={'pr_median': 'Precipitation HadGEM2-ES', 'netrad_median': 'Net radiation', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Groundwater recharge [mm/y]': 'Groundwater recharge'}, inplace=True)

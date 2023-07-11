@@ -87,28 +87,6 @@ ax.coastlines(linewidth=0.5)
 plt.savefig(results_path + var + "_map.png", dpi=600, bbox_inches='tight')
 plt.close()
 
-"""
-# test other P data
-pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
-#pr = weighted_temporal_mean(pr, "pr")
-#pr.name = "pr"
-pr = pr.resample(time="1Y").sum()
-for decade in ['1981_1990', '1991_2000', '2001_2010', '2011_2016']:
-    tmp = xr.open_dataset(r'./data/pr_gswp3-ewembi_' + decade + '.nc4')
-    #tmp = weighted_temporal_mean(tmp, "pr")
-    #tmp.name = "pr"
-    tmp = tmp.resample(time="1Y").sum()
-    pr = xr.merge([pr, tmp])
-
-pr = pr.sel(time=slice(dt(2001, 1, 1), dt(2015, 12, 31)))
-pr = pr.mean("time")
-
-# transform into dataframe
-df_pr = pr.to_dataframe().reset_index().dropna()
-df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
-df_tot = pd.merge(df_tot, df_pr, on=['lat', 'lon'], how='outer')
-"""
-
 # grid cell areas
 area = xr.open_dataset("model_outputs/2b/aggregated/watergap_22d_continentalarea.nc4", decode_times=False)
 df_area = area.to_dataframe().reset_index().dropna()

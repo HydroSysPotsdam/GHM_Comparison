@@ -21,37 +21,6 @@ if not os.path.isdir(results_path):
 # load and process data
 file_path = "GRUN_v1_GSWP3_WGS84_05_1902_2014.nc"
 
-"""
-# test other P data
-pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1941_1950.nc4')
-#pr = weighted_temporal_mean(pr, "pr")
-#pr.name = "pr"
-pr = pr.resample(time="1Y").sum()
-for decade in ['1951_1960', '1961_1970', '1971_1980', '1981_1990', '1991_2000', '2001_2010']:
-    tmp = xr.open_dataset(r'./data/pr_gswp3-ewembi_' + decade + '.nc4')
-    #tmp = weighted_temporal_mean(tmp, "pr")
-    #tmp.name = "pr"
-    tmp = tmp.resample(time="1Y").sum()
-    pr = xr.merge([pr, tmp])
-
-pr = pr.sel(time=slice(dt(1975, 1, 1), dt(2004, 12, 31)))
-#pr = pr.sel(time=slice(dt(1945, 1, 1), dt(1974, 12, 31)))
-pr = pr.mean("time")
-
-# transform into dataframe
-df_pr = pr.to_dataframe().reset_index().dropna()
-df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
-#df_pr.columns = ['lat', 'lon', 'pr_gswp3']
-
-# plot map
-var = 'pr_gswp3'
-plotting_fcts.plot_map(df_pr["lon"], df_pr["lat"], df_pr[var], " [mm/y]", var, np.linspace(0, 2000, 11))
-ax = plt.gca()
-ax.coastlines(linewidth=0.5)
-plt.savefig(results_path + var + "_map.png", dpi=600, bbox_inches='tight')
-plt.close()
-"""
-
 # get multi annual averages
 var = "Runoff"
 data = xr.open_dataset(data_path + file_path)

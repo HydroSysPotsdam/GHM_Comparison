@@ -18,28 +18,6 @@ results_path = "results/macdonald/"
 if not os.path.isdir(results_path):
     os.makedirs(results_path)
 
-"""
-# test other P data
-pr = xr.open_dataset(r'./data/pr_gswp3-ewembi_1971_1980.nc4')
-#pr = weighted_temporal_mean(pr, "pr")
-#pr.name = "pr"
-pr = pr.resample(time="1Y").sum()
-for decade in ['1981_1990', '1991_2000', '2001_2010']:
-    tmp = xr.open_dataset(r'./data/pr_gswp3-ewembi_' + decade + '.nc4')
-    #tmp = weighted_temporal_mean(tmp, "pr")
-    #tmp.name = "pr"
-    tmp = tmp.resample(time="1Y").sum()
-    pr = xr.merge([pr, tmp])
-
-pr = pr.sel(time=slice(dt(1975, 1, 1), dt(2004, 12, 31)))
-pr = pr.mean("time")
-
-# transform into dataframe
-df_pr = pr.to_dataframe().reset_index().dropna()
-df_pr['pr_gswp3'] = df_pr['pr']*86400*0.001*1000 # to mm/y
-#df_pr.columns = ['lat', 'lon', 'pr_gswp3']
-"""
-
 # load and process data
 df = pd.read_csv(data_path + "Recharge_data_Africa_BGS.csv", sep=';')
 
@@ -56,7 +34,6 @@ closest = closest.rename(columns={'geometry': 'closest_geom'})
 df = gdf.join(closest) # merge the datasets by index (for this, it is good to use '.join()' -function)
 
 # scatter plot
-#df = pd.merge(df, df_pr, on=['lat', 'lon'], how='outer')
 df.rename(columns={'LTA_P_mmpa': 'Precipitation', 'netrad_median': 'Net radiation', 'pr_median': 'Precipitation HadGEM2-ES', 'pr_gswp3': 'Precipitation GSWP3',
                    'evap': 'Actual Evapotranspiration', 'qr': 'Groundwater recharge ISIMIP', 'qtot': 'Total runoff',
                    'Recharge_mmpa': 'Groundwater recharge'}, inplace=True)

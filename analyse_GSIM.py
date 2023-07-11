@@ -20,18 +20,10 @@ if not os.path.isdir(results_path):
     os.makedirs(results_path)
 
 # load and process data
-#df = pd.read_csv(data_path + "GSIM_P_Q_data.csv", sep=',')
-#df = df.dropna()
-#df = df.reset_index()
-#df = df.drop(df.columns[[0,1]], axis=1)
-
 df = pd.read_csv(data_path + "GSIM_P_Q_data_gswp3.csv", sep=',')
 df = df.dropna()
 df = df.reset_index()
 df = df.drop(df.columns[[0,1]], axis=1)
-
-#df["lat"] = np.round(df["lat"],2)
-#df["lon"] = np.round(df["lon"],2)
 
 gdf = gpd.GeoDataFrame(df)
 geometry = [Point(xy) for xy in zip(df.lon, df.lat)]
@@ -44,8 +36,6 @@ gdf_domains = gpd.GeoDataFrame(df_domains, geometry=geometry)
 closest = get_nearest_neighbour.nearest_neighbor(gdf, gdf_domains, return_dist=True)
 closest = closest.rename(columns={'geometry': 'closest_geom'})
 df = gdf.join(closest, rsuffix="_gsim") # merge the datasets by index (for this, it is good to use '.join()' -function)
-
-#test = gpd.sjoin_nearest(gdf, gdf_domains)
 
 # scatter plot
 df.rename(columns={'mean_annual_Pgswp3': 'Precipitation GSWP3', 'mean_annual_PHadGEM2': 'Precipitation HadGEM2', 'netrad_median': 'Net radiation',
