@@ -33,7 +33,7 @@ df_tmp = pd.read_csv(data_path + "pr.csv", sep=',')
 df_tmp.columns = ["lat", "lon", "pr_median"] # dummy pr value, used only in domain file
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
 # new code: add GSWP3
-df_tmp = pd.read_csv("results/gswp3/30y_average_GSWP3.csv", sep=',')
+df_tmp = pd.read_csv("results/precip_averages/30y_average_GSWP3.csv", sep=',')
 df_tmp.columns = ["lon", "lat", "pr_gswp3"] #
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer').dropna()
 for var_name in var_name_list:  # loop over all models
@@ -55,7 +55,7 @@ df_tmp = pd.read_csv(data_path + "pr.csv", sep=',')
 df_tmp.columns = ["lat", "lon", "pr_median"] # dummy pr value, used only in domain file
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer')
 # new code: add GSWP3
-df_tmp = pd.read_csv("results/gswp3/30y_average_GSWP3.csv", sep=',')
+df_tmp = pd.read_csv("results/precip_averages/30y_average_GSWP3.csv", sep=',')
 df_tmp.columns = ["lon", "lat", "pr_gswp3"] #
 df_merged = pd.merge(df_merged, df_tmp, on=['lat', 'lon'], how='outer').dropna()
 for ghm in ghms:  # loop over all models
