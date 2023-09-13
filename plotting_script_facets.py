@@ -172,10 +172,10 @@ def scatterplots(df):
                             domains="domain_days_below_1_0.08_aridity_netrad", alpha=1, s=1)
             d = "domain_days_below_1_0.08_aridity_netrad"
             n = 11
-            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
-            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
-            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
-            g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
+            #g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet warm", n=n)
+            #g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry warm", n=n)
+            #g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="wet cold", n=n)
+            #g.map_dataframe(plotting_fcts.plot_lines_group, x_name, y_name, palette, domains=d, domain="dry cold", n=n)
             g.set(xlim=x_lim, ylim=y_lim)
             if x_name == "Precipitation" or y_name == "Actual evapotranspiration":
                 g.map(plotting_fcts.plot_origin_line, x_name, y_name)
