@@ -7,4 +7,3 @@ old/*
 data/*
 zenodo/*
 results/*
-create_domain_file_for_QA_tool.py
