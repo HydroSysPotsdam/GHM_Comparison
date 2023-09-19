@@ -19,8 +19,8 @@ domains = ["wet warm", "dry warm", "wet cold", "dry cold"]
 
 ### WaterGAP2
 # load data
-ghms = ["watergap2-2c_nosoc", "watergap2-2c_varsoc", "watergap2-2b"]
-outputs = ["evap", "qtot", "qr"]
+ghms = ["watergap2-2c_nosoc", "watergap2-2c_varsoc"] #, "watergap2-2b"
+outputs = ["evap", "qtot", "qr", "dis"]
 forcings = ["pr", "rlds", "rsds", "tas", "tasmax", "tasmin", "netrad", "domains"] # domains contains pr, potevap, netrad
 
 df = load_data_all(data_path, forcings, outputs, ghms, rmv_outliers=True)
@@ -41,9 +41,9 @@ df = df.sort_values(by=["sort_helper", "ghm"])
 x_name_list = ["Precipitation", "Net radiation"]
 x_unit_list = [" [mm/yr]", " [mm/yr]"]
 x_lim_list = [[-100, 3100], [-100, 2100]]
-y_name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff"]
-y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
-y_lim_list = [[-100, 2100], [-100, 2100], [-100, 2100]]
+y_name_list = ["Actual evapotranspiration", "Groundwater recharge", "Total runoff", "dis"]
+y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]", " [mm/yr]"]
+y_lim_list = [[-100, 2100], [-100, 2100], [-100, 2100], [-100, 3100]]
 
 # loop over variables
 for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
@@ -85,8 +85,8 @@ for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
 
 ### PCR-GLOBWB
 # load data
-ghms = ["pcr-globwb_nosoc", "pcr-globwb_varsoc", "pcr-globwb-2b"]
-outputs = ["evap", "qtot"]
+ghms = ["pcr-globwb_nosoc", "pcr-globwb_varsoc"] #, "pcr-globwb-2b"
+outputs = ["evap", "qtot", "dis"]
 forcings = ["pr", "rlds", "rsds", "tas", "tasmax", "tasmin", "netrad", "domains"] # domains contains pr, potevap, netrad
 
 df = load_data_all(data_path, forcings, outputs, ghms, rmv_outliers=False)
@@ -107,9 +107,9 @@ df = df.sort_values(by=["sort_helper", "ghm"])
 x_name_list = ["Precipitation", "Net radiation"]
 x_unit_list = [" [mm/yr]", " [mm/yr]"]
 x_lim_list = [[-100, 3100], [-100, 2100]]
-y_name_list = ["Actual evapotranspiration", "Total runoff"]
-y_unit_list = [" [mm/yr]", " [mm/yr]"]
-y_lim_list = [[-100, 2100], [-100, 2100]]
+y_name_list = ["Actual evapotranspiration", "Total runoff", "dis"]
+y_unit_list = [" [mm/yr]", " [mm/yr]", " [mm/yr]"]
+y_lim_list = [[-100, 2100], [-100, 2100], [-100, 3100]]
 
 # loop over variables
 for x_name, x_unit, x_lim in zip(x_name_list, x_unit_list, x_lim_list):
