@@ -1,4 +1,4 @@
-# Code used for the paper "Functional relationships reveal differences in the water cycle representation of global water models" 
+# Code used for the paper "Functional relationships reveal differences in the water cycle representation of global water models"
 
 The repository contains:
 - code to aggregate model inputs and outputs and to obtain multi-annual averages for a certain time period,
