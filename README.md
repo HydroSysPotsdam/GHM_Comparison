@@ -1,5 +1,3 @@
-! Preliminary version - will be updated once the paper is accepted !
-
 # Code used for the paper "Functional relationships reveal differences in the water cycle representation of global water models"
 
 The repository contains 
