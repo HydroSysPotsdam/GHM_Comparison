@@ -11,7 +11,7 @@ import xarray as xr
 ### load data ###
 data_path = "model_outputs/2b/aggregated/"
 ghms = ["clm45", "cwatm", "h08", "jules-w1", "lpjml", "matsiro", "pcr-globwb", "watergap2"]
-outputs = ["evap", "qr", "qs", "qsb", "qtot", "netrad", "potevap"]
+outputs = ["evap", "netrad", "potevap", "qr", "qtot"] # "qs", "qsb"]
 forcings = ["pr", "rlds", "rsds", "tas", "tasmax", "tasmin", "domains"] # domains contains pr, potevap, netrad
 
 df = load_data_all(data_path, forcings, outputs)
@@ -331,9 +331,9 @@ def most_deviating_model_plot(df, ghms):
 
 ### run functions ###
 
-globalmeans(df, ghms, domains)
-map_plots(df, ghms)
-#aridity_map_plots(df, ghms)
-#outlier_plots(df, ghms)
+# globalmeans(df, ghms, domains)
+# map_plots(df, ghms)
+# aridity_map_plots(df, ghms)
+# outlier_plots(df, ghms)
 white_spaces_plots(df, ghms)
-#most_deviating_model_plot(df, ghms)
+most_deviating_model_plot(df, ghms)

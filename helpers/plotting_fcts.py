@@ -406,7 +406,7 @@ def plot_map(lon, lat, var, var_unit=" ", var_name="misc",
     cbar.set_label(var_name + var_unit)
     # cbar.set_ticks([-100,-50,-10,-1,0,1,10,50,100])
     cbar.ax.tick_params(labelsize=12)
-    plt.gca().outline_patch.set_visible(False)
+    plt.gca().spines['geo'].set_visible(False)
 
     gl = ax.gridlines(draw_labels=False, linewidth=0.5, color='grey', alpha=0.75, linestyle='-')
     gl.xlocator = mticker.FixedLocator([-120, -60, 0, 60, 120])
@@ -442,7 +442,7 @@ def plot_outliers(df, g, var_name, var_unit=" "):
     x0, y0, x1, y1 = box.bounds
     ax.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
 
-    plt.gca().outline_patch.set_visible(False)
+    plt.gca().spines['geo'].set_visible(False)
 
     ax.set_title(g, fontsize=10)
     leg = ax.legend(loc='lower left', markerscale=4, fontsize=7)
@@ -478,7 +478,7 @@ def plot_most_deviating_model(df, max_ind, ghms, var_name):
     # cbar.set_ticks([-100,-50,-10,-1,0,1,10,50,100])
     cbar.ax.tick_params(labelsize=9)
     cbar.ax.tick_params(rotation=45)
-    plt.gca().outline_patch.set_visible(False)
+    plt.gca().spines['geo'].set_visible(False)
 
     cbar.set_ticks(np.arange(-1, len(ghms), 1))
     cbar.set_ticklabels(["multiple"] + ghms)

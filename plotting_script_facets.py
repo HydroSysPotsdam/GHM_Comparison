@@ -14,7 +14,7 @@ from pingouin import partial_corr
 ### load data ###
 data_path = "model_outputs/2b/aggregated/"
 ghms = ["clm45", "cwatm", "h08", "jules-w1", "lpjml", "matsiro", "pcr-globwb", "watergap2"]
-outputs = ["evap", "qr", "qs", "qsb", "qtot", "netrad", "potevap"]
+outputs = ["evap", "netrad", "potevap", "qr", "qtot"] # "qs", "qsb"]
 forcings = ["pr", "rlds", "rsds", "tas", "tasmax", "tasmin", "domains"] # domains contains pr, potevap, netrad
 
 df = load_data_all(data_path, forcings, outputs, rmv_outliers=True)
