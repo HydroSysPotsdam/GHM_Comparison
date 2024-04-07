@@ -7,3 +7,5 @@ old/*
 data/*
 zenodo/*
 results/*
+
+poetry.lock

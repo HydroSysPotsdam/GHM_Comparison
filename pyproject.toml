@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "ghm-comparison"
+package-mode = false
+version = "0.1.0"
+description = "Code for paper \"Functional relationships reveal differences in the water cycle representation of global water models\""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "3.11.4"
+pandas = "2.2.1"
+matplotlib = "3.8.3"
+seaborn = "0.13.2"
+shapely = "2.0.3"
+scipy = "1.12.0"
+pingouin = "0.5.4"
+cartopy = "0.22.0"
+brewer2mpl = "1.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
