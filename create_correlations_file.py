@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from functools import reduce
@@ -10,14 +11,17 @@ from pingouin import partial_corr
 # prepare data
 #data_path = "../data/"
 data_path = "model_outputs/2b/aggregated/"
+
 ghms = ["clm45", "jules-w1", "lpjml", "matsiro", "pcr-globwb", "watergap2", "h08", "cwatm"] #["watergap2-2c_nosoc"]#,
 # "watergap2-2c_varsoc"]#
+
 #outputs = ["evap", "qr", "qs", "qsb", "qtot"]
 outputs = ["evap", "qr", "qtot"]
 #outputs = ["evap", "qr"]
 # additional_outputs = ["swe"]
+
 #forcings = ["pr", "rlds", "rsds", "tas", "tasmax", "tasmin", "netrad"]
-forcings = ["pr", "netrad"]
+forcings = ["pr", "netrad_median"]
 
 
 from scipy.stats import t as ttest
@@ -179,33 +183,9 @@ l = []
 l_allmodels = []
 for df, g in EasyIt(facs=outputs, data_path=data_path):
     d = pd.merge(df, df_f, on=['lat', 'lon'])
-    if g == "h08":
+    if g in ["h08", "cwatm", "jules-w1", "watergap2", "matsiro", "clm45"]:
         del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_h08.csv")
-        d = pd.merge(d, data, on=['lat', 'lon'])
-        #d["netrad"] = d["netrad"] / 2257 * 0.001 * (60* 60 *24 *365)
-    if g == "cwatm":
-        del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_cwatm.csv")
-        d = pd.merge(d, data, on=['lat', 'lon'])
-        #d["netrad"] = d["netrad"] / 2257 * 0.001 * (60* 60 *24 *365)
-    if g == "jules-w1":
-        del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_jules.csv")
-        d = pd.merge(d, data, on=['lat', 'lon'])
-        #d["netrad"] = d["netrad"] / 2257 * 0.001 * (60* 60 *24 *365)
-    if g == "watergap2":
-        del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_watergap.csv")
-        d = pd.merge(d, data, on=['lat', 'lon'])
-        #d["netrad"] = d["netrad"] / 2257 * 0.001 * (60* 60 *24 *365)
-    if g == "matsiro":
-        del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_matsiro_withoutlakes.csv")
-        d = pd.merge(d, data, on=['lat', 'lon'])
-    if g == "clm45":
-        del d["netrad"]
-        data = pd.read_csv(data_path + "netradiation_clm45_minus.csv")
+        data = pd.read_csv(Path(data_path).joinpath(g, "netrad.csv"))
         d = pd.merge(d, data, on=['lat', 'lon'])
      
     #d["netrad"] = d["netrad"] / 2257 * 0.001 * (60* 60 *24 *365)
@@ -255,7 +235,7 @@ for df, g in EasyIt(facs=outputs, data_path=data_path):
 
 
 df_all = pd.concat(l_allmodels)
-df_mean = df_all.groupby(["lat", "lon"]).mean().reset_index()
+df_mean = df_all.groupby(["lat", "lon"]).mean(numeric_only=True).reset_index()
 df_mean = pd.merge(df_mean, df_domains, on=['lat', 'lon'])
 
 f = ["pr", "netrad"]
